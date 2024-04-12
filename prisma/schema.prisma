@@ -15,24 +15,27 @@ datasource db {
 
 model Server {
   id        Int      @id @default(autoincrement())
-  name      String?
-  groups    Group[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+  name      String
+  imageUrl  String?
+  roles    Role[] // 해당 필드는 db에 저장되지 않음 관계만 정의
   channels  Channel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
   userServer UserServer[] // 해당 필드는 db에 저장되지 않음 관계만 정의
 }
 
-model Group { // 서버와 그룹은 1:N 관계
+model Role { // 서버와 그룹은 1:N 관계
   id        Int      @id @default(autoincrement())
-  name      String?
-  color     String?
+  name      String
+  color     String
   server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
   serverId  Int
-  userGroup UserGroup[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+  userRole UserRole[] // 해당 필드는 db에 저장되지 않음 관계만 정의
 }
 
 model Channel {
   id        Int      @id @default(autoincrement())
-  name      String?
+  name      String
+  isPrivate Boolean  @default(false)
+  isVoice   Boolean  @default(false)
   server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
   serverId  Int
   userChannel UserChannel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
@@ -46,12 +49,12 @@ model UserServer {
   @@id([serverId, userId])
 }
 
-model UserGroup {
-  group     Group    @relation(fields: [groupId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
-  groupId   Int
+model UserRole {
+  role     Role    @relation(fields: [roleId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  roleId    Int
   userId    Int
 
-  @@id([groupId, userId])
+  @@id([roleId, userId])
 }
 
 model UserChannel {

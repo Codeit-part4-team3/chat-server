@@ -1,27 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { Channel } from '@prisma/client';
+import { Channel, UserChannel } from '@prisma/client';
+import { CreateChannelDto, PactchChannelDto } from 'src/entities/channel.dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ChannelService {
   constructor(private prismaService: PrismaService) {}
 
-  async fetchAllTodos(): Promise<Channel[]> {
+  async fetchAllChannel(): Promise<Channel[]> {
     return this.prismaService.channel.findMany();
   }
 
-  async fetchChannelById(id: number): Promise<Channel> {
-    return this.prismaService.channel.findUnique({
-      where: {
-        id,
+  async createChannel(channel: CreateChannelDto): Promise<Channel> {
+    return this.prismaService.channel.create({
+      data: {
+        name: channel.name,
+        isPrivate: channel.isPrivate,
+        isVoice: channel.isVoice,
+        serverId: channel.serverId,
       },
     });
   }
 
-  async deleteTodoById(id: number): Promise<Channel> {
+  async patchChannel(cId: number, channel: PactchChannelDto): Promise<Channel> {
+    return this.prismaService.channel.update({
+      where: {
+        id: cId,
+      },
+      data: {
+        name: channel.name,
+        isPrivate: channel.isPrivate,
+        isVoice: channel.isVoice,
+      },
+    });
+  }
+
+  async deleteChannel(cId: number): Promise<Channel> {
     return this.prismaService.channel.delete({
       where: {
-        id,
+        id: cId,
+      },
+    });
+  }
+
+  async fetchAllUserIncludeChannel(cId: number): Promise<UserChannel[]> {
+    return this.prismaService.userChannel.findMany({
+      where: {
+        channelId: cId,
       },
     });
   }

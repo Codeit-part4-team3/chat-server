@@ -5,47 +5,52 @@ import {
   Delete,
   Param,
   Body,
-  Put,
+  Patch,
   Injectable,
 } from '@nestjs/common';
-import { CreateChannelDto } from 'src/entities/createChannel.dto';
+import {
+  CreateChannelDto,
+  PactchChannelDto as PatchChannelDto,
+} from 'src/entities/channel.dto';
 import { ChannelService } from './channel.service';
-import { Channel } from '@prisma/client';
+import { Channel, UserChannel } from '@prisma/client';
 
 //
 // # 체널 관련 API
 //
 // ## 전체 체널 리스트 조회 GET /channel/all
 // ## 체널 생성 POST /channel
-// ## 특정 체널 조회 GET /channel/:id
 // ## 체널 수정 PUT /channel/:id
 // ## 체널 삭제 DELETE /channel/:id
+// ## 특정 체널 구성원 조회 GET /channel/:id
 //
 
 @Injectable()
-@Controller('channel')
+@Controller('api/v1/channel')
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
   @Get('all')
   async GetAllRequest(): Promise<Channel[]> {
-    return this.channelService.fetchAllTodos();
+    return this.channelService.fetchAllChannel();
   }
   @Post()
-  PostRequest(@Body() createChannelDto: CreateChannelDto): string {
-    console.log(createChannelDto);
-    return `${createChannelDto} PostRequest!`;
+  PostRequest(@Body() createChannelDto: CreateChannelDto): Promise<Channel> {
+    return this.channelService.createChannel(createChannelDto);
   }
-  @Get(':id')
-  ParamRequest(@Param('id') id: number): Promise<Channel> {
-    return this.channelService.fetchChannelById(id);
+  @Get(':id/users')
+  ParamRequest(@Param('id') id: number): Promise<UserChannel[]> {
+    return this.channelService.fetchAllUserIncludeChannel(id);
   }
-  @Put(':id')
-  PutRequest(@Param('id') id: number): string {
-    return `${id} PutRequest`;
+  @Patch(':id')
+  PatchRequest(
+    @Param('id') id: number,
+    @Body() patchChannelDto: PatchChannelDto,
+  ): Promise<Channel> {
+    return this.channelService.patchChannel(id, patchChannelDto);
   }
   @Delete(':id')
-  DeleteRequest(@Param('id') id: number): string {
-    return `${id} DeleteRequest`;
+  DeleteRequest(@Param('id') id: number): Promise<Channel> {
+    return this.channelService.deleteChannel(id);
   }
 }
