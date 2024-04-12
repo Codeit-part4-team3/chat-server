@@ -32,25 +32,27 @@ export class ChannelController {
 
   @Get('all')
   async GetAllRequest(): Promise<Channel[]> {
-    return this.channelService.fetchAllChannel();
+    return this.channelService.getAllChannel();
   }
   @Post()
-  PostRequest(@Body() createChannelDto: CreateChannelDto): Promise<Channel> {
+  async PostRequest(
+    @Body() createChannelDto: CreateChannelDto,
+  ): Promise<Channel> {
     return this.channelService.createChannel(createChannelDto);
   }
   @Get(':id/users')
-  ParamRequest(@Param('id') id: number): Promise<UserChannel[]> {
-    return this.channelService.fetchAllUserIncludeChannel(id);
+  async GetUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
+    return this.channelService.getAllUserIncludeChannel(id);
   }
   @Patch(':id')
-  PatchRequest(
+  async PatchRequest(
     @Param('id') id: number,
     @Body() patchChannelDto: PatchChannelDto,
   ): Promise<Channel> {
     return this.channelService.patchChannel(id, patchChannelDto);
   }
   @Delete(':id')
-  DeleteRequest(@Param('id') id: number): Promise<Channel> {
+  async DeleteRequest(@Param('id') id: number): Promise<Channel> {
     return this.channelService.deleteChannel(id);
   }
 }

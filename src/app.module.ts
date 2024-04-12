@@ -4,12 +4,14 @@ import { AppService } from './app.service';
 import { ChannelController } from './channel/channel.controller';
 import { ChannelService } from './channel/channel.service';
 import { ChannelModule } from './channel/channel.module';
-import { SubController } from './sub/sub.controller';
 import { PrismaService } from './prisma.service';
+import { ServerModule } from './server/server.module';
+import { ServerService } from './server/server.service';
+import { ServerController } from './server/server.controller';
 
 @Module({
-  imports: [ChannelModule],
-  controllers: [SubController, AppController, ChannelController],
-  providers: [AppService, ChannelService, PrismaService],
+  imports: [ChannelModule, ServerModule],
+  controllers: [AppController, ServerController, ChannelController],
+  providers: [AppService, ServerService, ChannelService, PrismaService],
 })
 export class AppModule {}

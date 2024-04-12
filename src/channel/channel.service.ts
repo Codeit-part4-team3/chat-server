@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma.service';
 export class ChannelService {
   constructor(private prismaService: PrismaService) {}
 
-  async fetchAllChannel(): Promise<Channel[]> {
+  async getAllChannel(): Promise<Channel[]> {
     return this.prismaService.channel.findMany();
   }
 
@@ -43,7 +43,7 @@ export class ChannelService {
     });
   }
 
-  async fetchAllUserIncludeChannel(cId: number): Promise<UserChannel[]> {
+  async getAllUserIncludeChannel(cId: number): Promise<UserChannel[]> {
     return this.prismaService.userChannel.findMany({
       where: {
         channelId: cId,
