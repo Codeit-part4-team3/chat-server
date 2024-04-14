@@ -26,7 +26,7 @@ import { Channel, UserChannel } from '@prisma/client';
 //
 
 @Injectable()
-@Controller('api/v1/channel')
+@Controller('api/chat/v1/channel')
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 

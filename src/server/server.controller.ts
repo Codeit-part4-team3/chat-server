@@ -22,7 +22,7 @@ import { Server } from '@prisma/client';
 //
 
 @Injectable()
-@Controller('api/v1/server')
+@Controller('api/chat/v1/server')
 export class ServerController {
   constructor(private readonly serverService: ServerService) {}
 
