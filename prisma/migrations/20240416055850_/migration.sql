@@ -1,16 +1,17 @@
 -- CreateTable
 CREATE TABLE `Server` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `imageUrl` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Group` (
+CREATE TABLE `Role` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NULL,
-    `color` VARCHAR(191) NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `color` VARCHAR(191) NOT NULL,
     `serverId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -19,7 +20,9 @@ CREATE TABLE `Group` (
 -- CreateTable
 CREATE TABLE `Channel` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `isPrivate` BOOLEAN NOT NULL DEFAULT false,
+    `isVoice` BOOLEAN NOT NULL DEFAULT false,
     `serverId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -34,11 +37,11 @@ CREATE TABLE `UserServer` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `UserGroup` (
-    `groupId` INTEGER NOT NULL,
+CREATE TABLE `UserRole` (
+    `roleId` INTEGER NOT NULL,
     `userId` INTEGER NOT NULL,
 
-    PRIMARY KEY (`groupId`, `userId`)
+    PRIMARY KEY (`roleId`, `userId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -50,7 +53,7 @@ CREATE TABLE `UserChannel` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Group` ADD CONSTRAINT `Group_serverId_fkey` FOREIGN KEY (`serverId`) REFERENCES `Server`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Role` ADD CONSTRAINT `Role_serverId_fkey` FOREIGN KEY (`serverId`) REFERENCES `Server`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Channel` ADD CONSTRAINT `Channel_serverId_fkey` FOREIGN KEY (`serverId`) REFERENCES `Server`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -59,7 +62,7 @@ ALTER TABLE `Channel` ADD CONSTRAINT `Channel_serverId_fkey` FOREIGN KEY (`serve
 ALTER TABLE `UserServer` ADD CONSTRAINT `UserServer_serverId_fkey` FOREIGN KEY (`serverId`) REFERENCES `Server`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `UserGroup` ADD CONSTRAINT `UserGroup_groupId_fkey` FOREIGN KEY (`groupId`) REFERENCES `Group`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `UserRole` ADD CONSTRAINT `UserRole_roleId_fkey` FOREIGN KEY (`roleId`) REFERENCES `Role`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `UserChannel` ADD CONSTRAINT `UserChannel_channelId_fkey` FOREIGN KEY (`channelId`) REFERENCES `Channel`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
