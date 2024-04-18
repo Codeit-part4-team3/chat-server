@@ -21,7 +21,7 @@ jobs:
       - name: if fail
         uses: actions/github-script@v5
         with:
-          github-token: ${{github.token}}
+          github-token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }}
           script: |
             const ref = "${{github.ref}}" 
             const pull_number = Number(ref.split("/")[2])
@@ -36,5 +36,5 @@ jobs:
               repo: context.repo.repo,
               pull_number: pull_number,
               state: "closed"
-            })
+            });
         if: failure()
