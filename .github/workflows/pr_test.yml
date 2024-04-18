@@ -25,12 +25,11 @@ jobs:
           script: |
             const ref = "${{github.ref}}" 
             const pull_number = Number(ref.split("/")[2])
-            await github.rest.pulls.createReview({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pull_number,
-              body:"테스트코드를 다시 확인해주세요. ",
-              event: "REQUEST_CHANGES"
+              issue_number: pull_number,
+              body: "테스트코드를 다시 확인해주세요."
             })
             await github.rest.pulls.update({
               owner: context.repo.owner,
