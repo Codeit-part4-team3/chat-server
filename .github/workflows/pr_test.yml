@@ -21,19 +21,20 @@ jobs:
       - name: if fail
         uses: actions/github-script@v5
         with:
-          github-token: ${{github.token}}
+          github-token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }}
           script: |
-            const ref = "${{github.ref}}" 
-            const pull_number = Number(ref.split("/")[2])
+            const { issue: { number: pull_number }, repo: { owner, repo } } = context;
             await github.pulls.createReview({
-              ...context.repo,
+              owner,
+              repo,
               pull_number,
               body:"테스트코드를 다시 확인해주세요. ",
               event: "REQUEST_CHANGES"
-            })
+            });
             await github.pulls.update({
-              ...context.repo,
+              owner,
+              repo,
               pull_number,
               state: "closed"
-            })
+            });
         if: failure()
