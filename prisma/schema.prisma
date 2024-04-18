@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Server {
+  id        Int      @id @default(autoincrement())
+  name      String
+  imageUrl  String?
+  roles    Role[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+  channels  Channel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+  userServer UserServer[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+}
+
+model Role { // 서버와 그룹은 1:N 관계
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String
+  server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  serverId  Int
+  userRole UserRole[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  name      String
+  isPrivate Boolean  @default(false)
+  isVoice   Boolean  @default(false)
+  server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  serverId  Int
+  userChannel UserChannel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+}
+
+model UserServer {
+  server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  serverId  Int
+  userId    Int
+
+  @@id([serverId, userId])
+}
+
+model UserRole {
+  role     Role    @relation(fields: [roleId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  roleId    Int
+  userId    Int
+
+  @@id([roleId, userId])
+}
+
+model UserChannel {
+  channel   Channel  @relation(fields: [channelId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  channelId Int
+  userId    Int
+
+  @@id([channelId, userId])
+}
