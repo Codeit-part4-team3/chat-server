@@ -11,7 +11,7 @@ import {
 import {
   CreateChannelDto,
   PactchChannelDto as PatchChannelDto,
-} from 'src/entities/channel.dto';
+} from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 
@@ -26,7 +26,7 @@ import { Channel, UserChannel } from '@prisma/client';
 //
 
 @Injectable()
-@Controller('api/chat/v1/channel')
+@Controller('chat/v1/channel')
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
