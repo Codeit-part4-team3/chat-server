@@ -22,6 +22,10 @@ async function bootstrap() {
   );
   logger.log('ValidationPipe set');
 
+  app.enableCors({
+    origin: 'https://api.pqsoft.com',
+  });
+
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
   logger.log('PrismaClientExceptionFilter set');
