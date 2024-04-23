@@ -1,4 +1,5 @@
 import {
+  Logger,
   Controller,
   Get,
   Post,
@@ -11,7 +12,7 @@ import {
 import {
   CreateChannelDto,
   PactchChannelDto as PatchChannelDto,
-} from 'src/entities/channel.dto';
+} from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 
@@ -25,13 +26,16 @@ import { Channel, UserChannel } from '@prisma/client';
 // ## 특정 체널 구성원 조회 GET /channel/:id
 //
 
+const logger = new Logger('ChannelController');
+
 @Injectable()
-@Controller('api/chat/v1/channel')
+@Controller('chat/v1/channel')
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
   @Get('all')
   async GetAllRequest(): Promise<Channel[]> {
+    logger.log('GetAllRequest');
     return this.channelService.getAllChannel();
   }
   @Post()

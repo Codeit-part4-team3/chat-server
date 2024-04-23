@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
-import { CreateServerDto, PatchServerDto } from 'src/entities/server.dto';
+import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { Server } from '@prisma/client';
 
 //
@@ -22,7 +22,7 @@ import { Server } from '@prisma/client';
 //
 
 @Injectable()
-@Controller('api/chat/v1/server')
+@Controller('chat/v1/server')
 export class ServerController {
   constructor(private readonly serverService: ServerService) {}
 

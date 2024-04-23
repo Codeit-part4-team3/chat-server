@@ -1,0 +1,43 @@
+name: PR Test
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run tests
+        run: npm test
+
+      - name: if fail
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }}
+          script: |
+            const ref = "${{github.ref}}" 
+            const pull_number = Number(ref.split("/")[2])
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pull_number,
+              body: "테스트코드를 다시 확인해주세요."
+            })
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number,
+              state: "closed"
+            });
+        if: failure()

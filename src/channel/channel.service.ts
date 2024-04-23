@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { Channel, UserChannel } from '@prisma/client';
-import { CreateChannelDto, PactchChannelDto } from 'src/entities/channel.dto';
-import { PrismaService } from 'src/prisma.service';
+import { CreateChannelDto, PactchChannelDto } from '../entities/channel.dto';
+import { PrismaService } from '../prisma.service';
+
+const logger = new Logger('ChannelController');
 
 @Injectable()
 export class ChannelService {
   constructor(private prismaService: PrismaService) {}
 
   async getAllChannel(): Promise<Channel[]> {
+    logger.log('GetAllRequest in ChannelService');
     return this.prismaService.channel.findMany();
   }
 
