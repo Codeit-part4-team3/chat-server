@@ -23,7 +23,7 @@ async function bootstrap() {
   logger.log('ValidationPipe set');
 
   app.enableCors({
-    origin: 'https://api.pqsoft.com',
+    origin: 'https://api.pqsoft.net',
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
