@@ -1,4 +1,5 @@
 import {
+  Logger,
   Controller,
   Get,
   Post,
@@ -25,6 +26,8 @@ import { Channel, UserChannel } from '@prisma/client';
 // ## 특정 체널 구성원 조회 GET /channel/:id
 //
 
+const logger = new Logger('ChannelController');
+
 @Injectable()
 @Controller('chat/v1/channel')
 export class ChannelController {
@@ -32,6 +35,7 @@ export class ChannelController {
 
   @Get('all')
   async GetAllRequest(): Promise<Channel[]> {
+    logger.log('GetAllRequest');
     return this.channelService.getAllChannel();
   }
   @Post()
