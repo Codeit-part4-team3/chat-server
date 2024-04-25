@@ -1,13 +1,13 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
-  const logger = new Logger('ChatServer');
-
-  logger.log('Starting the application');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  app.useLogger(logger);
   logger.log('Application started');
 
   app.useGlobalPipes(
