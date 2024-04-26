@@ -15,7 +15,6 @@ import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { Server } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Http } from 'winston/lib/winston/transports';
 
 //
 // # 서버 관련 API

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -21,13 +22,18 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    origin: ['https://pqsoft.net'],
-    methods: 'GET,PUT,POST,DELETE,PATCH, HEAD',
-
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  });
+  app.use(
+    cors({
+      origin: 'https://pqsoft.net',
+      methods: 'GET,PUT,POST,HEAD',
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+      credentials: true,
+      allowedHeaders: 'Content-Type,Authorization',
+      // vary: origin 옵션을 추가합니다.
+      vary: 'Origin',
+    }),
+  );
 
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
