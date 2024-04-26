@@ -22,7 +22,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'https://pqsoft.net',
+    origin: ['https://pqsoft.net', 'https://api.pqsoft.net'],
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
