@@ -22,11 +22,11 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['https://pqsoft.net', 'https://api.pqsoft.net'],
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
-    allowedHeaders:
-      'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
-    credentials: true,
+    origin: ['https://pqsoft.net'],
+    methods: 'GET,PUT,POST,DELETE,PATCH, HEAD',
+
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
