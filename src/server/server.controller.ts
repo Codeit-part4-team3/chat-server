@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   HttpCode,
+  Options,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
@@ -56,5 +57,11 @@ export class ServerController {
   ): Promise<Server> {
     this.logger.info('[controller] Patch /chat/v1/server/:id');
     return this.serverService.patchServer(id, patchServerDto);
+  }
+
+  @Options()
+  @HttpCode(204)
+  async OptionsRequest(): Promise<void> {
+    this.logger.info('[controller] Options /chat/v1/server');
   }
 }
