@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = app.get(WINSTON_MODULE_PROVIDER);
   app.useLogger(logger);
-  logger.log('Application started');
+  logger.info('Application started');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -23,16 +23,13 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'https://pqsoft.net',
-    allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
-    credentials: true,
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   await app.listen(80);
-  logger.log('Application listening on port 80');
+  logger.info('Application listening on port 80');
 }
 bootstrap();
