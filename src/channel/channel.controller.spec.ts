@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ChannelController } from './channel.controller';
 import { ChannelService } from './channel.service';
 import { PrismaService } from '../prisma.service';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 describe('ChannelController', () => {
   let controller: ChannelController;
@@ -10,6 +12,11 @@ describe('ChannelController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChannelController],
       providers: [ChannelService, PrismaService],
+      imports: [
+        WinstonModule.forRoot({
+          transports: [new winston.transports.Console()],
+        }),
+      ],
     }).compile();
 
     controller = module.get<ChannelController>(ChannelController);
