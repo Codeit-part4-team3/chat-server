@@ -1,4 +1,5 @@
 import {
+  Inject,
   Body,
   Controller,
   Get,
@@ -10,6 +11,8 @@ import {
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { Server } from '@prisma/client';
+import { Logger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 //
 // # 서버 관련 API
@@ -24,15 +27,20 @@ import { Server } from '@prisma/client';
 @Injectable()
 @Controller('chat/v1/server')
 export class ServerController {
-  constructor(private readonly serverService: ServerService) {}
+  constructor(
+    private readonly serverService: ServerService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
 
   @Get('all')
   async GetAllRequest(): Promise<Server[]> {
+    this.logger.info('[controller] Get /chat/v1/server/all');
     return this.serverService.getAllServer();
   }
 
   @Post()
   async PostRequest(@Body() createServerDto: CreateServerDto): Promise<Server> {
+    this.logger.info('[controller] Post /chat/v1/server');
     return this.serverService.createServer(createServerDto);
   }
 
@@ -41,6 +49,7 @@ export class ServerController {
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
   ): Promise<Server> {
+    this.logger.info('[controller] Patch /chat/v1/server/:id');
     return this.serverService.patchServer(id, patchServerDto);
   }
 }
