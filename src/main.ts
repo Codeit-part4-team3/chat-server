@@ -5,7 +5,7 @@ import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-cl
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = app.get(WINSTON_MODULE_PROVIDER);
   app.useLogger(logger);
   logger.info('Application started');
@@ -22,7 +22,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: '*',
+    origin: 'https://pqsoft.net',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
