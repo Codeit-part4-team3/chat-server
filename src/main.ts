@@ -26,6 +26,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
+    exposedHeaders: ['Vary'],
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
