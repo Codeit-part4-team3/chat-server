@@ -8,6 +8,7 @@ import {
   Body,
   Patch,
   Injectable,
+  HttpCode,
 } from '@nestjs/common';
 import {
   CreateChannelDto,
@@ -37,11 +38,13 @@ export class ChannelController {
   ) {}
 
   @Get('all')
+  @HttpCode(200)
   async GetAllRequest(): Promise<Channel[]> {
     this.logger.info('[controller] Get /chat/v1/channel/all');
     return this.channelService.getAllChannel();
   }
   @Post()
+  @HttpCode(201)
   async PostRequest(
     @Body() createChannelDto: CreateChannelDto,
   ): Promise<Channel> {
@@ -49,11 +52,13 @@ export class ChannelController {
     return this.channelService.createChannel(createChannelDto);
   }
   @Get(':id/users')
+  @HttpCode(200)
   async GetUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
     this.logger.info('[controller] Get /chat/v1/channel/:id/users');
     return this.channelService.getAllUserIncludeChannel(id);
   }
   @Patch(':id')
+  @HttpCode(200)
   async PatchRequest(
     @Param('id') id: number,
     @Body() patchChannelDto: PatchChannelDto,
@@ -62,6 +67,7 @@ export class ChannelController {
     return this.channelService.patchChannel(id, patchChannelDto);
   }
   @Delete(':id')
+  @HttpCode(200)
   async DeleteRequest(@Param('id') id: number): Promise<Channel> {
     this.logger.info('[controller] Delete /chat/v1/channel/:id');
     return this.channelService.deleteChannel(id);

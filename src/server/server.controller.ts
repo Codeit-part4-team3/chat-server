@@ -7,12 +7,14 @@ import {
   Param,
   Patch,
   Post,
+  HttpCode,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { Server } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Http } from 'winston/lib/winston/transports';
 
 //
 // # 서버 관련 API
@@ -33,18 +35,21 @@ export class ServerController {
   ) {}
 
   @Get('all')
+  @HttpCode(200)
   async GetAllRequest(): Promise<Server[]> {
     this.logger.info('[controller] Get /chat/v1/server/all');
     return this.serverService.getAllServer();
   }
 
   @Post()
+  @HttpCode(201)
   async PostRequest(@Body() createServerDto: CreateServerDto): Promise<Server> {
     this.logger.info('[controller] Post /chat/v1/server');
     return this.serverService.createServer(createServerDto);
   }
 
   @Patch(':id')
+  @HttpCode(200)
   async PatchRequest(
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
