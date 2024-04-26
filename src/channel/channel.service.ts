@@ -1,20 +1,24 @@
-import { Logger, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Channel, UserChannel } from '@prisma/client';
 import { CreateChannelDto, PactchChannelDto } from '../entities/channel.dto';
 import { PrismaService } from '../prisma.service';
-
-const logger = new Logger('ChannelController');
+import { Logger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class ChannelService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
 
   async getAllChannel(): Promise<Channel[]> {
-    logger.log('GetAllRequest in ChannelService');
+    this.logger.info('[service] getAllChannel');
     return this.prismaService.channel.findMany();
   }
 
   async createChannel(channel: CreateChannelDto): Promise<Channel> {
+    this.logger.info('[service] createChannel');
     return this.prismaService.channel.create({
       data: {
         name: channel.name,
@@ -26,6 +30,7 @@ export class ChannelService {
   }
 
   async patchChannel(cId: number, channel: PactchChannelDto): Promise<Channel> {
+    this.logger.info('[service] patchChannel');
     return this.prismaService.channel.update({
       where: {
         id: cId,
@@ -39,6 +44,7 @@ export class ChannelService {
   }
 
   async deleteChannel(cId: number): Promise<Channel> {
+    this.logger.info('[service] deleteChannel');
     return this.prismaService.channel.delete({
       where: {
         id: cId,

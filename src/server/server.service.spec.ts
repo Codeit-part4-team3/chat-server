@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { WinstonModule } from 'nest-winston';
 import { ServerService } from './server.service';
 import { PrismaService } from '../prisma.service';
+import * as winston from 'winston';
 
 describe('ServerService', () => {
   let service: ServerService;
@@ -20,6 +22,11 @@ describe('ServerService', () => {
             },
           },
         },
+      ],
+      imports: [
+        WinstonModule.forRoot({
+          transports: [new winston.transports.Console()],
+        }),
       ],
     }).compile();
 
