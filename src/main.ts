@@ -26,6 +26,7 @@ async function bootstrap() {
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
     allowedHeaders:
       'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
+    credentials: true,
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
