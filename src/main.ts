@@ -24,9 +24,8 @@ async function bootstrap() {
   app.enableCors({
     origin: 'https://pqsoft.net',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
     optionsSuccessStatus: 204,
-    exposedHeaders: ['Vary'],
+    allowedHeaders: '*',
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
