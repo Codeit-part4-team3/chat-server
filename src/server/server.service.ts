@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Server } from '@prisma/client';
+import { Server, UserServer } from '@prisma/client';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
@@ -12,9 +12,24 @@ export class ServerService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async getAllServer(): Promise<Server[]> {
+  async getAllServer(uId: number): Promise<Server[]> {
     this.logger.info('[service] getAllServer');
-    return this.prismaService.server.findMany();
+    const userServers = await this.prismaService.userServer.findMany({
+      where: {
+        userId: uId,
+      },
+    });
+
+    const serverIds = userServers.map((userServer) => userServer.serverId);
+    const servers = await this.prismaService.server.findMany({
+      where: {
+        id: {
+          in: serverIds,
+        },
+      },
+    });
+
+    return servers;
   }
 
   async createServer(server: CreateServerDto): Promise<Server> {
@@ -45,6 +60,16 @@ export class ServerService {
     return this.prismaService.server.delete({
       where: {
         id: sId,
+      },
+    });
+  }
+
+  async createUserLinkServer(sId: number, uId: number): Promise<UserServer> {
+    this.logger.info('[server] createServerRelationUser');
+    return this.prismaService.userServer.create({
+      data: {
+        serverId: sId,
+        userId: uId,
       },
     });
   }

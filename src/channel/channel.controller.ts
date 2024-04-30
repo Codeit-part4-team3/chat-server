@@ -9,6 +9,7 @@ import {
   Patch,
   Injectable,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
@@ -36,9 +37,12 @@ export class ChannelController {
 
   @Get('all')
   @HttpCode(200)
-  async getAllRequest(): Promise<Channel[]> {
+  async getAllRequest(
+    @Param('serverId') serverId: number,
+    @Query('userId') userId: number,
+  ): Promise<Channel[]> {
     this.logger.info('[controller] Get /chat/v1/channel/all');
-    return this.channelService.getAllChannel();
+    return this.channelService.getAllChannel(userId, serverId);
   }
 
   @Post()
@@ -46,9 +50,15 @@ export class ChannelController {
   async postRequest(
     @Body() createChannelDto: CreateChannelDto,
     @Param('serverId') serverId: number,
+    @Query('userId') userId: number,
   ): Promise<Channel> {
     this.logger.info(`[controller] Post /chat/v1/server/${serverId}/channel`);
-    return this.channelService.createChannel(serverId, createChannelDto);
+    return this.channelService
+      .createChannel(serverId, createChannelDto)
+      .then((channel) => {
+        this.channelService.createUserLinkChannel(channel.id, userId);
+        return channel;
+      });
   }
 
   @Get(':id/users')

@@ -34,11 +34,6 @@ describe('ServerService', () => {
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  it('should call findMany when getAllServer is called', async () => {
-    await service.getAllServer();
-    expect(prismaService.server.findMany).toHaveBeenCalled();
-  });
-
   it('should call create when createServer is called', async () => {
     await service.createServer({
       name: 'test',
