@@ -27,7 +27,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 //
 
 @Injectable()
-@Controller('chat/v1/channel')
+@Controller('chat/v1/server/:serverId/channel')
 export class ChannelController {
   constructor(
     private readonly channelService: ChannelService,
@@ -45,9 +45,10 @@ export class ChannelController {
   @HttpCode(201)
   async postRequest(
     @Body() createChannelDto: CreateChannelDto,
+    @Param('serverId') serverId: number,
   ): Promise<Channel> {
-    this.logger.info('[controller] Post /chat/v1/channel');
-    return this.channelService.createChannel(createChannelDto);
+    this.logger.info(`[controller] Post /chat/v1/server/${serverId}/channel`);
+    return this.channelService.createChannel(serverId, createChannelDto);
   }
 
   @Get(':id/users')

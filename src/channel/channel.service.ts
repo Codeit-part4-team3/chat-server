@@ -17,14 +17,17 @@ export class ChannelService {
     return this.prismaService.channel.findMany();
   }
 
-  async createChannel(channel: CreateChannelDto): Promise<Channel> {
+  async createChannel(
+    serverId: number,
+    channel: CreateChannelDto,
+  ): Promise<Channel> {
     this.logger.info('[service] createChannel');
     return this.prismaService.channel.create({
       data: {
         name: channel.name,
         isPrivate: channel.isPrivate,
         isVoice: channel.isVoice,
-        serverId: channel.serverId,
+        serverId: serverId,
         groupId: channel.groupId,
       },
     });
