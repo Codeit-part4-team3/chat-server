@@ -38,6 +38,9 @@ model Channel {
   isVoice   Boolean  @default(false)
   server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
   serverId  Int
+  groupId   Int?
+  group     Channel? @relation("ChannelGroup", fields: [groupId], references: [id])
+  channels  Channel[] @relation("ChannelGroup")
   userChannel UserChannel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
 }
 

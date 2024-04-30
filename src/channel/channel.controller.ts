@@ -10,10 +10,7 @@ import {
   Injectable,
   HttpCode,
 } from '@nestjs/common';
-import {
-  CreateChannelDto,
-  PactchChannelDto as PatchChannelDto,
-} from '../entities/channel.dto';
+import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 import { Logger } from 'winston';
@@ -43,6 +40,7 @@ export class ChannelController {
     this.logger.info('[controller] Get /chat/v1/channel/all');
     return this.channelService.getAllChannel();
   }
+
   @Post()
   @HttpCode(201)
   async postRequest(
@@ -51,14 +49,15 @@ export class ChannelController {
     this.logger.info('[controller] Post /chat/v1/channel');
     return this.channelService.createChannel(createChannelDto);
   }
+
   @Get(':id/users')
   @HttpCode(200)
   async getUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
     this.logger.info('[controller] Get /chat/v1/channel/:id/users');
     return this.channelService.getAllUserIncludeChannel(id);
   }
+
   @Patch(':id')
-  @HttpCode(200)
   async patchRequest(
     @Param('id') id: number,
     @Body() patchChannelDto: PatchChannelDto,
@@ -66,10 +65,11 @@ export class ChannelController {
     this.logger.info('[controller] Patch /chat/v1/channel/:id');
     return this.channelService.patchChannel(id, patchChannelDto);
   }
+
   @Delete(':id')
-  @HttpCode(200)
-  async deleteRequest(@Param('id') id: number): Promise<Channel> {
+  @HttpCode(204)
+  async deleteRequest(@Param('id') id: number): Promise<void> {
     this.logger.info('[controller] Delete /chat/v1/channel/:id');
-    return this.channelService.deleteChannel(id);
+    this.channelService.deleteChannel(id);
   }
 }

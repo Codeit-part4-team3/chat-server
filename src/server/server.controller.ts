@@ -9,15 +9,12 @@ import {
   Post,
   HttpCode,
   Delete,
-  Res,
-  HttpStatus,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
 import { Server } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Response } from 'express';
 
 //
 // # 서버 관련 API
@@ -55,24 +52,15 @@ export class ServerController {
   async patchRequest(
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
-    @Res() res: Response,
   ): Promise<Server | void> {
-    this.logger.info(`[controller] Patch /chat/v1/server/${id}`);
-    const updatedServer = await this.serverService.patchServer(
-      id,
-      patchServerDto,
-    );
-
-    if (updatedServer) {
-      res.status(HttpStatus.OK).json(updatedServer);
-    } else {
-      res.status(HttpStatus.NO_CONTENT).send();
-    }
+    this.logger.info(`[controller] Post /chat/v1/server/${id}`);
+    return this.serverService.patchServer(id, patchServerDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
     this.logger.info(`[controller] delete /chat/v1/server/${id}`);
+    this.serverService.deleteServer(id);
   }
 }
