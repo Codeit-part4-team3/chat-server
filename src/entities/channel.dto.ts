@@ -19,12 +19,12 @@ export class CreateChannelDto {
   @IsBoolean()
   isVoice: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  serverId: number;
+  groupId?: number;
 }
 
-export class PactchChannelDto {
+export class PatchChannelDto {
   @IsString()
   @IsOptional()
   name?: string;
@@ -36,4 +36,8 @@ export class PactchChannelDto {
   @IsBoolean()
   @IsOptional()
   isVoice?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  groupId?: number;
 }

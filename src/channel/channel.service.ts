@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Channel, UserChannel } from '@prisma/client';
-import { CreateChannelDto, PactchChannelDto } from '../entities/channel.dto';
+import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
@@ -17,19 +17,23 @@ export class ChannelService {
     return this.prismaService.channel.findMany();
   }
 
-  async createChannel(channel: CreateChannelDto): Promise<Channel> {
+  async createChannel(
+    serverId: number,
+    channel: CreateChannelDto,
+  ): Promise<Channel> {
     this.logger.info('[service] createChannel');
     return this.prismaService.channel.create({
       data: {
         name: channel.name,
         isPrivate: channel.isPrivate,
         isVoice: channel.isVoice,
-        serverId: channel.serverId,
+        serverId: serverId,
+        groupId: channel.groupId,
       },
     });
   }
 
-  async patchChannel(cId: number, channel: PactchChannelDto): Promise<Channel> {
+  async patchChannel(cId: number, channel: PatchChannelDto): Promise<Channel> {
     this.logger.info('[service] patchChannel');
     return this.prismaService.channel.update({
       where: {

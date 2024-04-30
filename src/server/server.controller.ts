@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
   HttpCode,
-  Options,
+  Delete,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
@@ -36,31 +36,31 @@ export class ServerController {
 
   @Get('all')
   @HttpCode(200)
-  async GetAllRequest(): Promise<Server[]> {
+  async getAllRequest(): Promise<Server[]> {
     this.logger.info('[controller] Get /chat/v1/server/all');
     return this.serverService.getAllServer();
   }
 
   @Post()
   @HttpCode(201)
-  async PostRequest(@Body() createServerDto: CreateServerDto): Promise<Server> {
+  async postRequest(@Body() createServerDto: CreateServerDto): Promise<Server> {
     this.logger.info('[controller] Post /chat/v1/server');
     return this.serverService.createServer(createServerDto);
   }
 
   @Patch(':id')
-  @HttpCode(200)
-  async PatchRequest(
+  async patchRequest(
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
-  ): Promise<Server> {
-    this.logger.info('[controller] Patch /chat/v1/server/:id');
+  ): Promise<Server | void> {
+    this.logger.info(`[controller] Post /chat/v1/server/${id}`);
     return this.serverService.patchServer(id, patchServerDto);
   }
 
-  @Options()
+  @Delete(':id')
   @HttpCode(204)
-  async OptionsRequest(): Promise<void> {
-    this.logger.info('[controller] Options /chat/v1/server');
+  async deleteRequest(@Param('id') id: number): Promise<void> {
+    this.logger.info(`[controller] delete /chat/v1/server/${id}`);
+    this.serverService.deleteServer(id);
   }
 }

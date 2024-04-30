@@ -39,4 +39,13 @@ export class ServerService {
       },
     });
   }
+
+  async deleteServer(sId: number): Promise<Server> {
+    this.logger.info('[server] deleteServer');
+    return this.prismaService.server.delete({
+      where: {
+        id: sId,
+      },
+    });
+  }
 }

@@ -44,11 +44,10 @@ describe('ChannelService', () => {
   });
 
   it('should call create when createChannel is called', async () => {
-    await service.createChannel({
+    await service.createChannel(0, {
       name: 'test',
       isPrivate: false,
       isVoice: false,
-      serverId: 0,
     });
     expect(prismaService.channel.create).toHaveBeenCalled();
   });
