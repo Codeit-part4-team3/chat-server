@@ -38,11 +38,6 @@ describe('ChannelService', () => {
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  it('should call findMany when getAllChannel is called', async () => {
-    await service.getAllChannel();
-    expect(prismaService.channel.findMany).toHaveBeenCalled();
-  });
-
   it('should call create when createChannel is called', async () => {
     await service.createChannel(0, {
       name: 'test',

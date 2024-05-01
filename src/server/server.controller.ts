@@ -9,6 +9,7 @@ import {
   Post,
   HttpCode,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
@@ -36,16 +37,22 @@ export class ServerController {
 
   @Get('all')
   @HttpCode(200)
-  async getAllRequest(): Promise<Server[]> {
+  async getAllRequest(@Query('userId') userId: number): Promise<Server[]> {
     this.logger.info('[controller] Get /chat/v1/server/all');
-    return this.serverService.getAllServer();
+    return this.serverService.getAllServer(userId);
   }
 
   @Post()
   @HttpCode(201)
-  async postRequest(@Body() createServerDto: CreateServerDto): Promise<Server> {
+  async postRequest(
+    @Body() createServerDto: CreateServerDto,
+    @Query('userId') userId: number,
+  ): Promise<Server> {
     this.logger.info('[controller] Post /chat/v1/server');
-    return this.serverService.createServer(createServerDto);
+    return this.serverService.createServer(createServerDto).then((server) => {
+      this.serverService.createUserLinkServer(server.id, userId);
+      return server;
+    });
   }
 
   @Patch(':id')

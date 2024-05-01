@@ -12,9 +12,24 @@ export class ChannelService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async getAllChannel(): Promise<Channel[]> {
+  async getAllChannel(uId: number, sId: number): Promise<Channel[]> {
     this.logger.info('[service] getAllChannel');
-    return this.prismaService.channel.findMany();
+    const userChannels = await this.prismaService.userChannel.findMany({
+      where: {
+        userId: uId,
+      },
+    });
+
+    const channelIds = userChannels.map((userChannel) => userChannel.channelId);
+    const channels = await this.prismaService.channel.findMany({
+      where: {
+        id: {
+          in: channelIds,
+        },
+        serverId: sId,
+      },
+    });
+    return channels;
   }
 
   async createChannel(
@@ -27,8 +42,8 @@ export class ChannelService {
         name: channel.name,
         isPrivate: channel.isPrivate,
         isVoice: channel.isVoice,
-        serverId: serverId,
         groupId: channel.groupId,
+        serverId: serverId,
       },
     });
   }
@@ -43,6 +58,7 @@ export class ChannelService {
         name: channel.name,
         isPrivate: channel.isPrivate,
         isVoice: channel.isVoice,
+        groupId: channel.groupId,
       },
     });
   }
@@ -60,6 +76,15 @@ export class ChannelService {
     return this.prismaService.userChannel.findMany({
       where: {
         channelId: cId,
+      },
+    });
+  }
+
+  async createUserLinkChannel(cId: number, uId: number): Promise<UserChannel> {
+    return this.prismaService.userChannel.create({
+      data: {
+        channelId: cId,
+        userId: uId,
       },
     });
   }
