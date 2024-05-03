@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateServerDto {
   @IsNotEmpty()
@@ -18,4 +18,24 @@ export class PatchServerDto {
   @IsString()
   @IsOptional()
   imageUrl?: string;
+}
+
+export class InviteServerDto {
+  @IsNotEmpty()
+  @IsNumber()
+  inviterId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  inviteeEmail: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  serverId: number;
+}
+
+export class InviteServerLinkDto {
+  @IsNotEmpty()
+  @IsString()
+  inviteLink: string;
 }

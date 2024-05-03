@@ -1,9 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Server, UserServer } from '@prisma/client';
-import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
+import {
+  CreateServerDto,
+  InviteServerLinkDto,
+  PatchServerDto,
+} from '../entities/server.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { encoding } from '../utils/secret';
 
 @Injectable()
 export class ServerService {
@@ -13,7 +18,6 @@ export class ServerService {
   ) {}
 
   async getAllServer(uId: number): Promise<Server[]> {
-    this.logger.info('[service] getAllServer');
     const userServers = await this.prismaService.userServer.findMany({
       where: {
         userId: uId,
@@ -33,7 +37,6 @@ export class ServerService {
   }
 
   async createServer(server: CreateServerDto): Promise<Server> {
-    this.logger.info('[service] createServer');
     return this.prismaService.server.create({
       data: {
         name: server.name,
@@ -43,7 +46,6 @@ export class ServerService {
   }
 
   async patchServer(sId: number, server: PatchServerDto): Promise<Server> {
-    this.logger.info('[server] patchServer');
     return this.prismaService.server.update({
       where: {
         id: sId,
@@ -56,7 +58,6 @@ export class ServerService {
   }
 
   async deleteServer(sId: number): Promise<Server> {
-    this.logger.info('[server] deleteServer');
     return this.prismaService.server.delete({
       where: {
         id: sId,
@@ -65,12 +66,17 @@ export class ServerService {
   }
 
   async createUserLinkServer(sId: number, uId: number): Promise<UserServer> {
-    this.logger.info('[server] createServerRelationUser');
     return this.prismaService.userServer.create({
       data: {
         serverId: sId,
         userId: uId,
       },
     });
+  }
+
+  async generateInviteLink(sId: number): Promise<InviteServerLinkDto> {
+    let encodeId = encoding(String(sId));
+    encodeId = encodeURIComponent(`${encodeId}`);
+    return { inviteLink: encodeId };
   }
 }

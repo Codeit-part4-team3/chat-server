@@ -41,7 +41,6 @@ export class ChannelController {
     @Param('serverId') serverId: number,
     @Query('userId') userId: number,
   ): Promise<Channel[]> {
-    this.logger.info('[controller] Get /chat/v1/channel/all');
     return this.channelService.getAllChannel(userId, serverId);
   }
 
@@ -52,7 +51,6 @@ export class ChannelController {
     @Param('serverId') serverId: number,
     @Query('userId') userId: number,
   ): Promise<Channel> {
-    this.logger.info(`[controller] Post /chat/v1/server/${serverId}/channel`);
     return this.channelService
       .createChannel(serverId, createChannelDto)
       .then((channel) => {
@@ -64,7 +62,6 @@ export class ChannelController {
   @Get(':id/users')
   @HttpCode(200)
   async getUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
-    this.logger.info('[controller] Get /chat/v1/channel/:id/users');
     return this.channelService.getAllUserIncludeChannel(id);
   }
 
@@ -73,14 +70,12 @@ export class ChannelController {
     @Param('id') id: number,
     @Body() patchChannelDto: PatchChannelDto,
   ): Promise<Channel> {
-    this.logger.info('[controller] Patch /chat/v1/channel/:id');
     return this.channelService.patchChannel(id, patchChannelDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
-    this.logger.info('[controller] Delete /chat/v1/channel/:id');
     this.channelService.deleteChannel(id);
   }
 }

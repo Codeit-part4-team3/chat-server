@@ -12,7 +12,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
-import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
+import {
+  CreateServerDto,
+  InviteServerLinkDto,
+  PatchServerDto,
+} from '../entities/server.dto';
 import { Server } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
@@ -48,7 +52,6 @@ export class ServerController {
     @Body() createServerDto: CreateServerDto,
     @Query('userId') userId: number,
   ): Promise<Server> {
-    this.logger.info('[controller] Post /chat/v1/server');
     return this.serverService.createServer(createServerDto).then((server) => {
       this.serverService.createUserLinkServer(server.id, userId);
       return server;
@@ -60,14 +63,20 @@ export class ServerController {
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
   ): Promise<Server | void> {
-    this.logger.info(`[controller] Post /chat/v1/server/${id}`);
     return this.serverService.patchServer(id, patchServerDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
-    this.logger.info(`[controller] delete /chat/v1/server/${id}`);
     this.serverService.deleteServer(id);
   }
+
+  @Get(':id/inviteLink')
+  @HttpCode(200)
+  async getInviteLink(@Param('id') id: number): Promise<InviteServerLinkDto> {
+    return this.serverService.generateInviteLink(id);
+  }
+
+  // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
 }
