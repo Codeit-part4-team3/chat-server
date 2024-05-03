@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
@@ -27,6 +28,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.12.1",
     "@prisma/extension-pulse": "^1.0.1",
+    "@types/axios": "^0.14.0",
     "app-root-path": "^3.1.0",
     "aws-sdk": "^2.1593.0",
     "class-transformer": "^0.5.1",

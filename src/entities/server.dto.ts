@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateServerDto {
   @IsNotEmpty()
@@ -26,12 +32,14 @@ export class InviteServerDto {
   inviterId: number;
 
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   inviteeEmail: string;
+}
 
+export class InviteUserServerResponseDto {
   @IsNotEmpty()
-  @IsNumber()
-  serverId: number;
+  @IsString()
+  userId: string;
 }
 
 export class InviteServerLinkDto {

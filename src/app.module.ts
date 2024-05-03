@@ -11,6 +11,7 @@ import { ServerController } from './server/server.controller';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggingMiddleware } from './common/logger/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     ServerModule,
     LoggerModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    HttpModule,
   ],
   controllers: [AppController, ServerController, ChannelController],
   providers: [AppService, ServerService, ChannelService, PrismaService],

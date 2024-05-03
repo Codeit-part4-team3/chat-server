@@ -14,6 +14,7 @@ import {
 import { ServerService } from './server.service';
 import {
   CreateServerDto,
+  InviteServerDto,
   InviteServerLinkDto,
   PatchServerDto,
 } from '../entities/server.dto';
@@ -79,4 +80,13 @@ export class ServerController {
   }
 
   // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
+
+  @Post(':id/inviteMember')
+  @HttpCode(200)
+  async inviteMember(
+    @Param('id') id: number,
+    @Body() inviteServerDto: InviteServerDto,
+  ): Promise<string> {
+    return this.serverService.inviteMember(id, inviteServerDto);
+  }
 }
