@@ -1,5 +1,5 @@
-import { Body, Inject, Injectable } from '@nestjs/common';
-import { Server, UserServer } from '@prisma/client';
+import { Inject, Injectable } from '@nestjs/common';
+import { InviteServer, Server, UserServer } from '@prisma/client';
 import {
   CreateServerDto,
   InviteServerDto,
@@ -89,11 +89,11 @@ export class ServerService {
   async inviteMember(
     sId: number,
     inviteServerDto: InviteServerDto,
-  ): Promise<string> {
-    const inviteeId = await firstValueFrom(
+  ): Promise<InviteServer> {
+    const invitee = await firstValueFrom(
       this.httpService
         .post<InviteUserServerResponseDto>(
-          'http://localhost:80/internal/v1/verifyEmail',
+          `${process.env.USER_SERVER_URL}/internal/v1/verifyEmail`,
           {
             email: inviteServerDto.inviteeEmail,
           },
@@ -105,8 +105,13 @@ export class ServerService {
         ),
     );
 
-    this.logger.info(`[service] inviteMember ${inviteeId}`);
-    return inviteeId.data.userId;
-    // return this.createUserLinkServer(serverId, sId);
+    this.logger.info(`[service] inviteMember ${invitee.data.email}`);
+    return this.prismaService.inviteServer.create({
+      data: {
+        inviterId: inviteServerDto.inviterId,
+        inviteeId: invitee.data.id,
+        serverId: sId,
+      },
+    });
   }
 }

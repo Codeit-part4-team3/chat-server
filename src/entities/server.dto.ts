@@ -39,7 +39,15 @@ export class InviteServerDto {
 export class InviteUserServerResponseDto {
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  id: number;
+
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  nickname: string;
 }
 
 export class InviteServerLinkDto {

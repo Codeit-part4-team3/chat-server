@@ -18,7 +18,7 @@ import {
   InviteServerLinkDto,
   PatchServerDto,
 } from '../entities/server.dto';
-import { Server } from '@prisma/client';
+import { InviteServer, Server } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
@@ -86,7 +86,7 @@ export class ServerController {
   async inviteMember(
     @Param('id') id: number,
     @Body() inviteServerDto: InviteServerDto,
-  ): Promise<string> {
+  ): Promise<InviteServer> {
     return this.serverService.inviteMember(id, inviteServerDto);
   }
 }
