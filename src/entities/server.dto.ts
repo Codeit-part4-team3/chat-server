@@ -55,3 +55,15 @@ export class InviteServerLinkDto {
   @IsString()
   inviteLink: string;
 }
+
+export class InvitedServer {
+  inviteId: number;
+  serverName: string;
+  inviterName: string;
+}
+
+export class User {
+  id: number;
+  email: string;
+  nickname: string;
+}

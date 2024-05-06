@@ -44,6 +44,8 @@ export class ChannelController {
     return this.channelService.getAllChannel(userId, serverId);
   }
 
+  // TODO : 체널 생성시 해당 유저와 연결
+
   @Post()
   @HttpCode(201)
   async postRequest(

@@ -14,6 +14,7 @@ import {
 import { ServerService } from './server.service';
 import {
   CreateServerDto,
+  InvitedServer,
   InviteServerDto,
   InviteServerLinkDto,
   PatchServerDto,
@@ -88,5 +89,13 @@ export class ServerController {
     @Body() inviteServerDto: InviteServerDto,
   ): Promise<InviteServer> {
     return this.serverService.inviteMember(id, inviteServerDto);
+  }
+
+  @Get('invitedServer')
+  @HttpCode(200)
+  async getInvitedServer(
+    @Query('userId') id: number,
+  ): Promise<InvitedServer[]> {
+    return this.serverService.invitedServerList(id);
   }
 }
