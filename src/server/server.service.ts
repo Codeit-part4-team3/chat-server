@@ -15,7 +15,7 @@ import { encoding } from '../utils/secret';
 import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
-import { InvitedServer } from '../entities/server.dto';
+import { InvitedServer, AcceptInviteDto } from '../entities/server.dto';
 
 @Injectable()
 export class ServerService {
@@ -102,16 +102,15 @@ export class ServerService {
         )
         .pipe(
           map((res) => {
-            return res;
+            return res.data;
           }),
         ),
     );
 
-    this.logger.info(`[service] inviteMember ${invitee.data.email}`);
     return this.prismaService.inviteServer.create({
       data: {
         inviterId: inviteServerDto.inviterId,
-        inviteeId: invitee.data.id,
+        inviteeId: invitee.id,
         serverId: sId,
       },
     });
@@ -129,16 +128,18 @@ export class ServerService {
     });
 
     const inviteList = await Promise.all([
-      invitedServers.map(async (invitedServer) => {
-        return await this.prismaService.server.findUnique({
-          where: {
-            id: invitedServer.serverId,
-          },
-          select: {
-            name: true,
-          },
-        });
-      }),
+      await Promise.all(
+        invitedServers.map((invitedServer) => {
+          return this.prismaService.server.findUnique({
+            where: {
+              id: invitedServer.serverId,
+            },
+            select: {
+              name: true,
+            },
+          });
+        }),
+      ),
       await firstValueFrom(
         this.httpService
           .post<
@@ -151,24 +152,38 @@ export class ServerService {
           ),
       ),
     ]);
+    const [serverNames, inviters] = await inviteList;
 
-    this.logger.info('invitedServer 3');
-    const [serverNames, inviters] = inviteList;
-    this.logger.info(`invitedServer ${serverNames}`);
-    this.logger.info(`invitedServer ${inviters}`);
-    const serverNamesPromises = serverNames.map((serverNamePromise) =>
-      serverNamePromise.then((server) => server.name),
+    const result = Promise.all(
+      serverNames.map((serverName, i) => ({
+        inviteId: invitedServers[i].id,
+        serverName: serverName.name,
+        inviterName: inviters[i].nickname,
+      })),
     );
 
-    this.logger.info('invitedServer 4');
-    const resolvedServerNames = await Promise.all(serverNamesPromises);
+    return result;
+  }
 
-    this.logger.info('invitedServer 5');
-    const result = resolvedServerNames.map((serverName, i) => ({
-      inviteId: invitedServers[i].id,
-      serverName,
-      inviterName: inviters[i].nickname,
-    }));
+  async acceptInvite(
+    uId: number,
+    acceptInviteDto: AcceptInviteDto,
+  ): Promise<UserServer | null> {
+    const invite = await this.prismaService.inviteServer.findUnique({
+      where: {
+        id: acceptInviteDto.inviteId,
+      },
+    });
+
+    let result = null;
+    if (acceptInviteDto.isAccept) {
+      result = await this.createUserLinkServer(invite.serverId, uId);
+    }
+    await this.prismaService.inviteServer.delete({
+      where: {
+        id: acceptInviteDto.inviteId,
+      },
+    });
 
     return result;
   }

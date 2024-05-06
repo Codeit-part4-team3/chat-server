@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -54,6 +55,16 @@ export class InviteServerLinkDto {
   @IsNotEmpty()
   @IsString()
   inviteLink: string;
+}
+
+export class AcceptInviteDto {
+  @IsNotEmpty()
+  @IsNumber()
+  inviteId: number;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isAccept: boolean;
 }
 
 export class InvitedServer {

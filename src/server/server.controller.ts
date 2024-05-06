@@ -13,13 +13,14 @@ import {
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
+  AcceptInviteDto,
   CreateServerDto,
   InvitedServer,
   InviteServerDto,
   InviteServerLinkDto,
   PatchServerDto,
 } from '../entities/server.dto';
-import { InviteServer, Server } from '@prisma/client';
+import { InviteServer, Server, UserServer } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
@@ -97,5 +98,14 @@ export class ServerController {
     @Query('userId') id: number,
   ): Promise<InvitedServer[]> {
     return this.serverService.invitedServerList(id);
+  }
+
+  @Post('invitedServer')
+  @HttpCode(200)
+  async postInvitedServer(
+    @Query('userId') userId: number,
+    @Body() acceptInviteDto: AcceptInviteDto,
+  ): Promise<UserServer | null> {
+    return this.serverService.acceptInvite(userId, acceptInviteDto);
   }
 }
