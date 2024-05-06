@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma.service';
 import { ServerService } from './server.service';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { HttpModule } from '@nestjs/axios';
 
 describe('ServerController', () => {
   let controller: ServerController;
@@ -13,6 +14,7 @@ describe('ServerController', () => {
       controllers: [ServerController],
       providers: [ServerService, PrismaService], // why PrismaService?
       imports: [
+        HttpModule,
         WinstonModule.forRoot({
           transports: [new winston.transports.Console()],
         }),
