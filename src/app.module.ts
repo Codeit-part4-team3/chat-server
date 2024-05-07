@@ -11,6 +11,10 @@ import { ServerController } from './server/server.controller';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggingMiddleware } from './common/logger/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -18,9 +22,22 @@ import { ConfigModule } from '@nestjs/config';
     ServerModule,
     LoggerModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    HttpModule,
+    AuthModule,
   ],
-  controllers: [AppController, ServerController, ChannelController],
-  providers: [AppService, ServerService, ChannelService, PrismaService],
+  controllers: [
+    AppController,
+    ServerController,
+    ChannelController,
+    AuthController,
+  ],
+  providers: [
+    AppService,
+    ServerService,
+    ChannelService,
+    PrismaService,
+    AuthService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

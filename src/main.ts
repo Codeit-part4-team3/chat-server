@@ -31,7 +31,7 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
-  await app.listen(80);
-  logger.info('Application listening on port 80');
+  await app.listen(process.env.PORT);
+  logger.info(`Application listening on port ${process.env.PORT}`);
 }
 bootstrap();

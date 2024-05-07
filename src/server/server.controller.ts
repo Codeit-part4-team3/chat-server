@@ -10,12 +10,21 @@ import {
   HttpCode,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
-import { CreateServerDto, PatchServerDto } from '../entities/server.dto';
-import { Server } from '@prisma/client';
+import {
+  AcceptInviteDto,
+  CreateServerDto,
+  InvitedServer,
+  InviteServerDto,
+  InviteServerLinkDto,
+  PatchServerDto,
+} from '../entities/server.dto';
+import { InviteServer, Server, UserServer } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { JwtAuthGuard } from '../auth/auth-guard';
 
 //
 // # 서버 관련 API
@@ -27,6 +36,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 // ## 서버 초대 // kafka 필요
 //
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 @Controller('chat/v1/server')
 export class ServerController {
@@ -48,7 +58,6 @@ export class ServerController {
     @Body() createServerDto: CreateServerDto,
     @Query('userId') userId: number,
   ): Promise<Server> {
-    this.logger.info('[controller] Post /chat/v1/server');
     return this.serverService.createServer(createServerDto).then((server) => {
       this.serverService.createUserLinkServer(server.id, userId);
       return server;
@@ -60,14 +69,46 @@ export class ServerController {
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
   ): Promise<Server | void> {
-    this.logger.info(`[controller] Post /chat/v1/server/${id}`);
     return this.serverService.patchServer(id, patchServerDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
-    this.logger.info(`[controller] delete /chat/v1/server/${id}`);
     this.serverService.deleteServer(id);
+  }
+
+  @Get(':id/inviteLink')
+  @HttpCode(200)
+  async getInviteLink(@Param('id') id: number): Promise<InviteServerLinkDto> {
+    return this.serverService.generateInviteLink(id);
+  }
+
+  // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
+
+  @Post(':id/inviteMember')
+  @HttpCode(200)
+  async inviteMember(
+    @Param('id') id: number,
+    @Body() inviteServerDto: InviteServerDto,
+  ): Promise<InviteServer> {
+    return this.serverService.inviteMember(id, inviteServerDto);
+  }
+
+  @Get('invitedServer')
+  @HttpCode(200)
+  async getInvitedServer(
+    @Query('userId') id: number,
+  ): Promise<InvitedServer[]> {
+    return this.serverService.invitedServerList(id);
+  }
+
+  @Post('invitedServer')
+  @HttpCode(200)
+  async postInvitedServer(
+    @Query('userId') userId: number,
+    @Body() acceptInviteDto: AcceptInviteDto,
+  ): Promise<UserServer | null> {
+    return this.serverService.acceptInvite(userId, acceptInviteDto);
   }
 }

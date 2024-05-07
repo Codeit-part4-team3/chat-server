@@ -4,6 +4,7 @@ import { ChannelService } from './channel.service';
 import { PrismaService } from '../prisma.service';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { AuthService } from '../auth/auth.service';
 
 describe('ChannelController', () => {
   let controller: ChannelController;
@@ -11,7 +12,7 @@ describe('ChannelController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChannelController],
-      providers: [ChannelService, PrismaService],
+      providers: [ChannelService, PrismaService, AuthService],
       imports: [
         WinstonModule.forRoot({
           transports: [new winston.transports.Console()],
