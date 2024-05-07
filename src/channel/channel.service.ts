@@ -13,7 +13,6 @@ export class ChannelService {
   ) {}
 
   async getAllChannel(uId: number, sId: number): Promise<Channel[]> {
-    this.logger.info('[service] getAllChannel');
     const userChannels = await this.prismaService.userChannel.findMany({
       where: {
         userId: uId,
@@ -32,11 +31,18 @@ export class ChannelService {
     return channels;
   }
 
+  async getChannel(cId: number): Promise<Channel> {
+    return this.prismaService.channel.findUnique({
+      where: {
+        id: cId,
+      },
+    });
+  }
+
   async createChannel(
     serverId: number,
     channel: CreateChannelDto,
   ): Promise<Channel> {
-    this.logger.info('[service] createChannel');
     return this.prismaService.channel.create({
       data: {
         name: channel.name,
@@ -49,7 +55,6 @@ export class ChannelService {
   }
 
   async patchChannel(cId: number, channel: PatchChannelDto): Promise<Channel> {
-    this.logger.info('[service] patchChannel');
     return this.prismaService.channel.update({
       where: {
         id: cId,
@@ -64,7 +69,6 @@ export class ChannelService {
   }
 
   async deleteChannel(cId: number): Promise<Channel> {
-    this.logger.info('[service] deleteChannel');
     return this.prismaService.channel.delete({
       where: {
         id: cId,

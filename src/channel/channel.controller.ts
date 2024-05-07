@@ -10,12 +10,14 @@ import {
   Injectable,
   HttpCode,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { JwtAuthGuard } from '../auth/auth-guard';
 
 //
 // # 체널 관련 API
@@ -27,6 +29,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 // ## 특정 체널 구성원 조회 GET /channel/:id
 //
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 @Controller('chat/v1/server/:serverId/channel')
 export class ChannelController {
@@ -41,9 +44,16 @@ export class ChannelController {
     @Param('serverId') serverId: number,
     @Query('userId') userId: number,
   ): Promise<Channel[]> {
-    this.logger.info('[controller] Get /chat/v1/channel/all');
     return this.channelService.getAllChannel(userId, serverId);
   }
+
+  @Get(':id')
+  @HttpCode(200)
+  async GetChannelRequest(@Param('id') id: number): Promise<Channel> {
+    return this.channelService.getChannel(id);
+  }
+
+  // TODO : 체널 생성시 해당 유저와 연결
 
   @Post()
   @HttpCode(201)
@@ -52,7 +62,6 @@ export class ChannelController {
     @Param('serverId') serverId: number,
     @Query('userId') userId: number,
   ): Promise<Channel> {
-    this.logger.info(`[controller] Post /chat/v1/server/${serverId}/channel`);
     return this.channelService
       .createChannel(serverId, createChannelDto)
       .then((channel) => {
@@ -64,7 +73,6 @@ export class ChannelController {
   @Get(':id/users')
   @HttpCode(200)
   async getUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
-    this.logger.info('[controller] Get /chat/v1/channel/:id/users');
     return this.channelService.getAllUserIncludeChannel(id);
   }
 
@@ -73,14 +81,12 @@ export class ChannelController {
     @Param('id') id: number,
     @Body() patchChannelDto: PatchChannelDto,
   ): Promise<Channel> {
-    this.logger.info('[controller] Patch /chat/v1/channel/:id');
     return this.channelService.patchChannel(id, patchChannelDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
-    this.logger.info('[controller] Delete /chat/v1/channel/:id');
     this.channelService.deleteChannel(id);
   }
 }
