@@ -9,12 +9,11 @@ import {
   Patch,
   Injectable,
   HttpCode,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
-import { Channel, UserChannel } from '@prisma/client';
+import { Channel } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { JwtAuthGuard } from '../auth/auth-guard';
@@ -40,11 +39,8 @@ export class ChannelController {
 
   @Get('all')
   @HttpCode(200)
-  async getAllRequest(
-    @Param('serverId') serverId: number,
-    @Query('userId') userId: number,
-  ): Promise<Channel[]> {
-    return this.channelService.getAllChannel(userId, serverId);
+  async getAllRequest(@Param('serverId') serverId: number): Promise<Channel[]> {
+    return this.channelService.getAllChannel(serverId);
   }
 
   @Get(':id')
@@ -60,20 +56,12 @@ export class ChannelController {
   async postRequest(
     @Body() createChannelDto: CreateChannelDto,
     @Param('serverId') serverId: number,
-    @Query('userId') userId: number,
   ): Promise<Channel> {
     return this.channelService
       .createChannel(serverId, createChannelDto)
       .then((channel) => {
-        this.channelService.createUserLinkChannel(channel.id, userId);
         return channel;
       });
-  }
-
-  @Get(':id/users')
-  @HttpCode(200)
-  async getUsersRequest(@Param('id') id: number): Promise<UserChannel[]> {
-    return this.channelService.getAllUserIncludeChannel(id);
   }
 
   @Patch(':id')

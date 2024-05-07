@@ -42,7 +42,6 @@ model Channel {
   groupId     Int?
   group       Channel?      @relation("ChannelGroup", fields: [groupId], references: [id])
   channels    Channel[]     @relation("ChannelGroup")
-  userChannel UserChannel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
 }
 
 model UserServer {
@@ -59,14 +58,6 @@ model UserRole {
   userId Int
 
   @@id([roleId, userId])
-}
-
-model UserChannel {
-  channel   Channel @relation(fields: [channelId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
-  channelId Int
-  userId    Int
-
-  @@id([channelId, userId])
 }
 
 model InviteServer {

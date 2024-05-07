@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Channel, UserChannel } from '@prisma/client';
+import { Channel } from '@prisma/client';
 import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
@@ -12,19 +12,9 @@ export class ChannelService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async getAllChannel(uId: number, sId: number): Promise<Channel[]> {
-    const userChannels = await this.prismaService.userChannel.findMany({
-      where: {
-        userId: uId,
-      },
-    });
-
-    const channelIds = userChannels.map((userChannel) => userChannel.channelId);
+  async getAllChannel(sId: number): Promise<Channel[]> {
     const channels = await this.prismaService.channel.findMany({
       where: {
-        id: {
-          in: channelIds,
-        },
         serverId: sId,
       },
     });
@@ -72,23 +62,6 @@ export class ChannelService {
     return this.prismaService.channel.delete({
       where: {
         id: cId,
-      },
-    });
-  }
-
-  async getAllUserIncludeChannel(cId: number): Promise<UserChannel[]> {
-    return this.prismaService.userChannel.findMany({
-      where: {
-        channelId: cId,
-      },
-    });
-  }
-
-  async createUserLinkChannel(cId: number, uId: number): Promise<UserChannel> {
-    return this.prismaService.userChannel.create({
-      data: {
-        channelId: cId,
-        userId: uId,
       },
     });
   }

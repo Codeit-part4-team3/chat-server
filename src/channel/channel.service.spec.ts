@@ -60,9 +60,4 @@ describe('ChannelService', () => {
     await service.deleteChannel(0);
     expect(prismaService.channel.delete).toHaveBeenCalled();
   });
-
-  it('should call update when getAllUserIncludeChannel is called', async () => {
-    await service.getAllUserIncludeChannel(0);
-    expect(prismaService.userChannel.findMany).toHaveBeenCalled();
-  });
 });

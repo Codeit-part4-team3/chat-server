@@ -186,18 +186,23 @@ export class ServerService {
             },
           })
           .then((channels) => {
-            channels.map((channel) => {
+            channels.forEach(async (channel) => {
               if (!channel || channel.isPrivate) return;
-              this.prismaService.userChannel.create({
+              this.logger.info(`[Accept Invite]: ${channel.id}`);
+              await this.prismaService.userChannel.create({
                 data: {
                   userId: uId,
                   channelId: channel.id,
                 },
               });
             });
+            return channels;
           }),
       ]);
     }
+
+    this.logger.info(`[Accept Invite 0]: ${JSON.stringify(result[0])}`);
+    this.logger.info(`[Accept Invite 1]: ${JSON.stringify(result[1])}`);
 
     await this.prismaService.inviteServer.delete({
       where: {
@@ -205,6 +210,6 @@ export class ServerService {
       },
     });
 
-    return result[0];
+    return result ? result[0] : null;
   }
 }
