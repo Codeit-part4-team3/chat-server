@@ -31,6 +31,14 @@ export class ChannelService {
     return channels;
   }
 
+  async getChannel(cId: number): Promise<Channel> {
+    return this.prismaService.channel.findUnique({
+      where: {
+        id: cId,
+      },
+    });
+  }
+
   async createChannel(
     serverId: number,
     channel: CreateChannelDto,

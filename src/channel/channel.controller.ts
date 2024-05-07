@@ -47,6 +47,12 @@ export class ChannelController {
     return this.channelService.getAllChannel(userId, serverId);
   }
 
+  @Get(':id')
+  @HttpCode(200)
+  async GetChannelRequest(@Param('id') id: number): Promise<Channel> {
+    return this.channelService.getChannel(id);
+  }
+
   // TODO : 체널 생성시 해당 유저와 연결
 
   @Post()
