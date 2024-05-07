@@ -24,7 +24,7 @@ import {
 import { InviteServer, Server, UserServer } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { JwtAuthGuard } from 'src/auth/auth-guard';
+import { JwtAuthGuard } from '../auth/auth-guard';
 
 //
 // # 서버 관련 API

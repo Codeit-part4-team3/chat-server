@@ -17,7 +17,7 @@ import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { JwtAuthGuard } from 'src/auth/auth-guard';
+import { JwtAuthGuard } from '../auth/auth-guard';
 
 //
 // # 체널 관련 API

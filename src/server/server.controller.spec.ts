@@ -5,6 +5,7 @@ import { ServerService } from './server.service';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { HttpModule } from '@nestjs/axios';
+import { AuthService } from '../auth/auth.service';
 
 describe('ServerController', () => {
   let controller: ServerController;
@@ -12,7 +13,7 @@ describe('ServerController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ServerController],
-      providers: [ServerService, PrismaService], // why PrismaService?
+      providers: [ServerService, PrismaService, AuthService], // why PrismaService?
       imports: [
         HttpModule,
         WinstonModule.forRoot({
