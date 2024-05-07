@@ -10,6 +10,7 @@ import {
   HttpCode,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
@@ -23,6 +24,7 @@ import {
 import { InviteServer, Server, UserServer } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { JwtAuthGuard } from 'src/auth/auth-guard';
 
 //
 // # 서버 관련 API
@@ -34,6 +36,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 // ## 서버 초대 // kafka 필요
 //
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 @Controller('chat/v1/server')
 export class ServerController {

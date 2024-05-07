@@ -10,12 +10,14 @@ import {
   Injectable,
   HttpCode,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateChannelDto, PatchChannelDto } from '../entities/channel.dto';
 import { ChannelService } from './channel.service';
 import { Channel, UserChannel } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { JwtAuthGuard } from 'src/auth/auth-guard';
 
 //
 // # 체널 관련 API
@@ -27,6 +29,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 // ## 특정 체널 구성원 조회 GET /channel/:id
 //
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 @Controller('chat/v1/server/:serverId/channel')
 export class ChannelController {

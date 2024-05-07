@@ -30,7 +30,7 @@
     "@prisma/extension-pulse": "^1.0.1",
     "@types/axios": "^0.14.0",
     "app-root-path": "^3.1.0",
-    "aws-sdk": "^2.1593.0",
+    "aws-sdk": "^2.1614.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "crypto": "^1.0.1",
