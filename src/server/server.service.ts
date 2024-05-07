@@ -177,14 +177,34 @@ export class ServerService {
 
     let result = null;
     if (acceptInviteDto.isAccept) {
-      result = await this.createUserLinkServer(invite.serverId, uId);
+      result = await Promise.all([
+        this.createUserLinkServer(invite.serverId, uId),
+        this.prismaService.channel
+          .findMany({
+            where: {
+              serverId: invite.serverId,
+            },
+          })
+          .then((channels) => {
+            channels.map((channel) => {
+              if (!channel || channel.isPrivate) return;
+              this.prismaService.userChannel.create({
+                data: {
+                  userId: uId,
+                  channelId: channel.id,
+                },
+              });
+            });
+          }),
+      ]);
     }
+
     await this.prismaService.inviteServer.delete({
       where: {
         id: acceptInviteDto.inviteId,
       },
     });
 
-    return result;
+    return result[0];
   }
 }
