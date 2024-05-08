@@ -179,15 +179,40 @@ export class ServerService {
 
     let result = null;
     if (acceptInviteDto.isAccept) {
-      result = await this.createUserLinkServer(invite.serverId, uId);
+      result = await Promise.all([
+        this.createUserLinkServer(invite.serverId, uId),
+        this.prismaService.channel
+          .findMany({
+            where: {
+              serverId: invite.serverId,
+            },
+          })
+          .then((channels) => {
+            channels.forEach(async (channel) => {
+              if (!channel || channel.isPrivate) return;
+              this.logger.info(`[Accept Invite]: ${channel.id}`);
+              await this.prismaService.userChannel.create({
+                data: {
+                  userId: uId,
+                  channelId: channel.id,
+                },
+              });
+            });
+            return channels;
+          }),
+      ]);
     }
+
+    this.logger.info(`[Accept Invite 0]: ${JSON.stringify(result[0])}`);
+    this.logger.info(`[Accept Invite 1]: ${JSON.stringify(result[1])}`);
+
     await this.prismaService.inviteServer.delete({
       where: {
         id: acceptInviteDto.inviteId,
       },
     });
 
-    return result;
+    return result ? result[0] : null;
   }
 
   async createEvent(event: EventDto): Promise<Event> {
