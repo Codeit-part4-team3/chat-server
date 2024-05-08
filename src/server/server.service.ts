@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InviteServer, Server, UserServer } from '@prisma/client';
+import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import {
   CreateServerDto,
+  EventDto,
   InviteServerDto,
   InviteServerLinkDto,
   InviteUserServerResponseDto,
@@ -186,5 +187,23 @@ export class ServerService {
     });
 
     return result;
+  }
+
+  async createEvent(event: EventDto): Promise<Event> {
+    return await this.prismaService.event.create({
+      data: {
+        title: event.title,
+        start: event.start,
+        serverId: event.serverId,
+      },
+    });
+  }
+
+  async getAllEvents(sId: number): Promise<Event[]> {
+    return await this.prismaService.event.findMany({
+      where: {
+        serverId: sId,
+      },
+    });
   }
 }

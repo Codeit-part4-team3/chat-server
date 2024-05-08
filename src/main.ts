@@ -25,7 +25,8 @@ async function bootstrap() {
     origin: ['https://pqsoft.net', 'http://localhost:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     optionsSuccessStatus: 204,
-    allowedHeaders: '*',
+    allowedHeaders: ['authorization', 'Content-Type'],
+    credentials: true,
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);

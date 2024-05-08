@@ -16,12 +16,13 @@ import { ServerService } from './server.service';
 import {
   AcceptInviteDto,
   CreateServerDto,
+  EventDto,
   InvitedServer,
   InviteServerDto,
   InviteServerLinkDto,
   PatchServerDto,
 } from '../entities/server.dto';
-import { InviteServer, Server, UserServer } from '@prisma/client';
+import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { JwtAuthGuard } from '../auth/auth-guard';
@@ -110,5 +111,16 @@ export class ServerController {
     @Body() acceptInviteDto: AcceptInviteDto,
   ): Promise<UserServer | null> {
     return this.serverService.acceptInvite(userId, acceptInviteDto);
+  }
+
+  @Post('event')
+  @HttpCode(201)
+  async postEvent(@Body() event: EventDto): Promise<Event> {
+    return await this.serverService.createEvent(event);
+  }
+
+  @Get('event/:serverId')
+  async getEvent(@Param('serverId') serverId: number): Promise<Event[]> {
+    return await this.serverService.getAllEvents(serverId);
   }
 }

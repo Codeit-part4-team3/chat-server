@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDate,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -65,6 +66,20 @@ export class AcceptInviteDto {
   @IsNotEmpty()
   @IsBoolean()
   isAccept: boolean;
+}
+
+export class EventDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsDate()
+  start: Date;
+
+  @IsNotEmpty()
+  @IsNumber()
+  serverId: number;
 }
 
 export class InvitedServer {

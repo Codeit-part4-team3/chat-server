@@ -21,6 +21,7 @@ model Server {
   channels     Channel[] // 해당 필드는 db에 저장되지 않음 관계만 정의
   userServer   UserServer[] // 해당 필드는 db에 저장되지 않음 관계만 정의
   inviteServer InviteServer[] // 해당 필드는 db에 저장되지 않음 관계만 정의
+  Event        Event[] // 해당 필드는 db에 저장되지 않음 관계만 정의
 }
 
 model Role {
@@ -75,4 +76,12 @@ model InviteServer {
   serverId  Int
   inviterId Int
   inviteeId Int
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  title     String
+  server    Server   @relation(fields: [serverId], references: [id]) // 해당 필드는 db에 저장되지 않음 관계만 정의
+  serverId  Int
+  start DateTime @default(now()) 
 }
