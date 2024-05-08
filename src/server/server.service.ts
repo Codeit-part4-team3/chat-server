@@ -3,6 +3,7 @@ import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import {
   CreateServerDto,
   EventDto,
+  GetEventDto,
   InviteServerDto,
   InviteServerLinkDto,
   InviteUserServerResponseDto,
@@ -203,6 +204,38 @@ export class ServerService {
     return await this.prismaService.event.findMany({
       where: {
         serverId: sId,
+      },
+    });
+  }
+
+  async getEvents(getEventDto: GetEventDto): Promise<Event[]> {
+    const res = await this.prismaService.event.findMany({
+      where: {
+        serverId: getEventDto.serverId,
+        start: { gte: getEventDto.startDate, lte: getEventDto.endDate },
+      },
+    });
+    console.log(res);
+    return res;
+  }
+
+  async updateEvent(eId: number, event: EventDto): Promise<Event> {
+    return await this.prismaService.event.update({
+      where: {
+        id: eId,
+      },
+      data: {
+        title: event.title,
+        start: event.start,
+        serverId: event.serverId,
+      },
+    });
+  }
+
+  async deleteEvent(eId: number) {
+    await this.prismaService.event.delete({
+      where: {
+        id: eId,
       },
     });
   }

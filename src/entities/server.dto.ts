@@ -82,6 +82,20 @@ export class EventDto {
   serverId: number;
 }
 
+export class GetEventDto {
+  @IsNotEmpty()
+  @IsNumber()
+  serverId: number;
+
+  @IsNotEmpty()
+  @IsDate()
+  startDate: Date;
+
+  @IsNotEmpty()
+  @IsDate()
+  endDate: Date;
+}
+
 export class InvitedServer {
   inviteId: number;
   serverName: string;

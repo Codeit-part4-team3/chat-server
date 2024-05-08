@@ -11,12 +11,14 @@ import {
   Delete,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
   AcceptInviteDto,
   CreateServerDto,
   EventDto,
+  GetEventDto,
   InvitedServer,
   InviteServerDto,
   InviteServerLinkDto,
@@ -119,8 +121,45 @@ export class ServerController {
     return await this.serverService.createEvent(event);
   }
 
-  @Get('event/:serverId')
-  async getEvent(@Param('serverId') serverId: number): Promise<Event[]> {
+  @Get('events/all')
+  @HttpCode(200)
+  async getAllEvents(@Query('serverId') serverId: number): Promise<Event[]> {
     return await this.serverService.getAllEvents(serverId);
+  }
+
+  @Get('events')
+  @HttpCode(200)
+  async getEvents(
+    @Query('serverId') serverId: number,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    if (!serverId || !startDate || !endDate) {
+      throw new Error('Invalid query');
+    }
+
+    const getEventDto: GetEventDto = {
+      serverId,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    };
+
+    return await this.serverService.getEvents(getEventDto);
+  }
+
+  @Put('event/update')
+  @HttpCode(200)
+  async updateEvent(
+    @Query('eId') eId: number,
+    @Body() event: EventDto,
+  ): Promise<Event> {
+    return await this.serverService.updateEvent(eId, event);
+  }
+
+  @Delete('event/delete')
+  @HttpCode(204)
+  async deleteEvent(@Query('eId') eId: number) {
+    // console.log(eId);
+    this.serverService.deleteEvent(eId);
   }
 }

@@ -23,7 +23,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: ['https://pqsoft.net', 'http://localhost:5173'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     optionsSuccessStatus: 204,
     allowedHeaders: ['authorization', 'Content-Type'],
     credentials: true,
