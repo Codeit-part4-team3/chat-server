@@ -5,15 +5,16 @@ import {
   EventDto,
   GetEventDto,
   InviteServerDto,
-  InviteServerLinkDto,
-  InviteUserServerResponseDto,
+  GenerateServerLinkDto,
+  InternalVerifyEmailDto,
   PatchServerDto,
   User,
+  InviteLinkDto,
 } from '../entities/server.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { encoding } from '../utils/secret';
+import { decoding, encoding } from '../utils/secret';
 import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
@@ -84,10 +85,22 @@ export class ServerService {
     });
   }
 
-  async generateInviteLink(sId: number): Promise<InviteServerLinkDto> {
+  async generateInviteLink(sId: number): Promise<GenerateServerLinkDto> {
     let encodeId = encoding(String(sId));
     encodeId = encodeURIComponent(`${encodeId}`);
     return { inviteLink: encodeId };
+  }
+
+  async redirectInviteLink(inviteLinkDto: InviteLinkDto): Promise<object> {
+    const decodeId = decodeURIComponent(inviteLinkDto.secretKey);
+    const sId = Number(decoding(decodeId));
+
+    const result = await this.createUserLinkServer(
+      sId,
+      inviteLinkDto.inviteeId,
+    );
+
+    return { redirectUrl: `server/${result.serverId}` };
   }
 
   async inviteMember(
@@ -96,7 +109,7 @@ export class ServerService {
   ): Promise<InviteServer> {
     const invitee = await firstValueFrom(
       this.httpService
-        .post<InviteUserServerResponseDto>(
+        .post<InternalVerifyEmailDto>(
           `${process.env.USER_SERVER_URL}/internal/v1/verifyEmail`,
           {
             email: inviteServerDto.inviteeEmail,

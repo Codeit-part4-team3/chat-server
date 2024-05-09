@@ -38,7 +38,7 @@ export class InviteServerDto {
   inviteeEmail: string;
 }
 
-export class InviteUserServerResponseDto {
+export class InternalVerifyEmailDto {
   @IsNotEmpty()
   @IsString()
   id: number;
@@ -52,10 +52,20 @@ export class InviteUserServerResponseDto {
   nickname: string;
 }
 
-export class InviteServerLinkDto {
+export class GenerateServerLinkDto {
   @IsNotEmpty()
   @IsString()
   inviteLink: string;
+}
+
+export class InviteLinkDto {
+  @IsNotEmpty()
+  @IsNumber()
+  inviteeId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  secretKey: string;
 }
 
 export class AcceptInviteDto {

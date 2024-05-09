@@ -21,8 +21,9 @@ import {
   GetEventDto,
   InvitedServer,
   InviteServerDto,
-  InviteServerLinkDto,
+  GenerateServerLinkDto,
   PatchServerDto,
+  InviteLinkDto,
 } from '../entities/server.dto';
 import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
@@ -83,11 +84,9 @@ export class ServerController {
 
   @Get(':id/inviteLink')
   @HttpCode(200)
-  async getInviteLink(@Param('id') id: number): Promise<InviteServerLinkDto> {
+  async getInviteLink(@Param('id') id: number): Promise<GenerateServerLinkDto> {
     return this.serverService.generateInviteLink(id);
   }
-
-  // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
 
   @Post(':id/inviteMember')
   @HttpCode(200)
@@ -113,6 +112,12 @@ export class ServerController {
     @Body() acceptInviteDto: AcceptInviteDto,
   ): Promise<UserServer | null> {
     return this.serverService.acceptInvite(userId, acceptInviteDto);
+  }
+
+  @Post('inviteLink')
+  @HttpCode(200)
+  async inviteLink(@Body() inviteLinkDto: InviteLinkDto): Promise<object> {
+    return this.serverService.redirectInviteLink(inviteLinkDto);
   }
 
   @Post('event')
