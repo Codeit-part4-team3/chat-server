@@ -11,17 +11,20 @@ import {
   Delete,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
   AcceptInviteDto,
   CreateServerDto,
+  EventDto,
+  GetEventDto,
   InvitedServer,
   InviteServerDto,
   InviteServerLinkDto,
   PatchServerDto,
 } from '../entities/server.dto';
-import { InviteServer, Server, UserServer } from '@prisma/client';
+import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { JwtAuthGuard } from '../auth/auth-guard';
@@ -110,5 +113,53 @@ export class ServerController {
     @Body() acceptInviteDto: AcceptInviteDto,
   ): Promise<UserServer | null> {
     return this.serverService.acceptInvite(userId, acceptInviteDto);
+  }
+
+  @Post('event')
+  @HttpCode(201)
+  async postEvent(@Body() event: EventDto): Promise<Event> {
+    return await this.serverService.createEvent(event);
+  }
+
+  @Get('events/all')
+  @HttpCode(200)
+  async getAllEvents(@Query('serverId') serverId: number): Promise<Event[]> {
+    return await this.serverService.getAllEvents(serverId);
+  }
+
+  @Get('events')
+  @HttpCode(200)
+  async getEvents(
+    @Query('serverId') serverId: number,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    if (!serverId || !startDate || !endDate) {
+      throw new Error('Invalid query');
+    }
+
+    const getEventDto: GetEventDto = {
+      serverId,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    };
+
+    return await this.serverService.getEvents(getEventDto);
+  }
+
+  @Put('event/update')
+  @HttpCode(200)
+  async updateEvent(
+    @Query('eId') eId: number,
+    @Body() event: EventDto,
+  ): Promise<Event> {
+    return await this.serverService.updateEvent(eId, event);
+  }
+
+  @Delete('event/delete')
+  @HttpCode(204)
+  async deleteEvent(@Query('eId') eId: number) {
+    // console.log(eId);
+    this.serverService.deleteEvent(eId);
   }
 }

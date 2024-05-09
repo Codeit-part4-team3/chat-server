@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InviteServer, Server, UserServer } from '@prisma/client';
+import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import {
   CreateServerDto,
+  EventDto,
+  GetEventDto,
   InviteServerDto,
   InviteServerLinkDto,
   InviteUserServerResponseDto,
@@ -177,39 +179,64 @@ export class ServerService {
 
     let result = null;
     if (acceptInviteDto.isAccept) {
-      result = await Promise.all([
-        this.createUserLinkServer(invite.serverId, uId),
-        this.prismaService.channel
-          .findMany({
-            where: {
-              serverId: invite.serverId,
-            },
-          })
-          .then((channels) => {
-            channels.forEach(async (channel) => {
-              if (!channel || channel.isPrivate) return;
-              this.logger.info(`[Accept Invite]: ${channel.id}`);
-              await this.prismaService.userChannel.create({
-                data: {
-                  userId: uId,
-                  channelId: channel.id,
-                },
-              });
-            });
-            return channels;
-          }),
-      ]);
+      result = await this.createUserLinkServer(invite.serverId, uId);
     }
-
-    this.logger.info(`[Accept Invite 0]: ${JSON.stringify(result[0])}`);
-    this.logger.info(`[Accept Invite 1]: ${JSON.stringify(result[1])}`);
-
     await this.prismaService.inviteServer.delete({
       where: {
         id: acceptInviteDto.inviteId,
       },
     });
 
-    return result ? result[0] : null;
+    return result;
+  }
+
+  async createEvent(event: EventDto): Promise<Event> {
+    return await this.prismaService.event.create({
+      data: {
+        title: event.title,
+        start: event.start,
+        serverId: event.serverId,
+      },
+    });
+  }
+
+  async getAllEvents(sId: number): Promise<Event[]> {
+    return await this.prismaService.event.findMany({
+      where: {
+        serverId: sId,
+      },
+    });
+  }
+
+  async getEvents(getEventDto: GetEventDto): Promise<Event[]> {
+    const res = await this.prismaService.event.findMany({
+      where: {
+        serverId: getEventDto.serverId,
+        start: { gte: getEventDto.startDate, lte: getEventDto.endDate },
+      },
+    });
+    console.log(res);
+    return res;
+  }
+
+  async updateEvent(eId: number, event: EventDto): Promise<Event> {
+    return await this.prismaService.event.update({
+      where: {
+        id: eId,
+      },
+      data: {
+        title: event.title,
+        start: event.start,
+        serverId: event.serverId,
+      },
+    });
+  }
+
+  async deleteEvent(eId: number) {
+    await this.prismaService.event.delete({
+      where: {
+        id: eId,
+      },
+    });
   }
 }
