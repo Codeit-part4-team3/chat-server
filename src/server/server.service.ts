@@ -19,12 +19,14 @@ import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { InvitedServer, AcceptInviteDto } from '../entities/server.dto';
+import { ChannelService } from 'src/channel/channel.service';
 
 @Injectable()
 export class ServerService {
   constructor(
     private prismaService: PrismaService,
     private httpService: HttpService,
+    private channelService: ChannelService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
@@ -48,12 +50,45 @@ export class ServerService {
   }
 
   async createServer(server: CreateServerDto): Promise<Server> {
-    return this.prismaService.server.create({
+    const result = await this.prismaService.server.create({
       data: {
         name: server.name,
         imageUrl: server.imageUrl,
       },
     });
+
+    Promise.all([
+      this.channelService
+        .createChannel(result.id, {
+          name: '일반 카테고리',
+          isPrivate: false,
+          isVoice: false,
+        })
+        .then((group) =>
+          this.channelService.createChannel(result.id, {
+            name: '일반',
+            isPrivate: false,
+            isVoice: false,
+            groupId: group.id,
+          }),
+        ),
+      this.channelService
+        .createChannel(result.id, {
+          name: '음성 카테고리',
+          isPrivate: false,
+          isVoice: false,
+        })
+        .then((group) =>
+          this.channelService.createChannel(result.id, {
+            name: '음성',
+            isPrivate: false,
+            isVoice: true,
+            groupId: group.id,
+          }),
+        ),
+    ]);
+
+    return result;
   }
 
   async patchServer(sId: number, server: PatchServerDto): Promise<Server> {
