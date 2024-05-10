@@ -76,6 +76,31 @@ export class ServerService {
     });
   }
 
+  async getUsers(sId: number): Promise<User[]> {
+    this.logger.info('[getUsers]');
+    const userServers = await this.prismaService.userServer.findMany({
+      where: {
+        serverId: sId,
+      },
+    });
+
+    this.logger.info(JSON.stringify(userServers));
+    const userIds = userServers.map((userServer) => userServer.userId);
+    this.logger.info(JSON.stringify(userIds));
+
+    return await firstValueFrom(
+      this.httpService
+        .post<User[]>(`${process.env.USER_SERVER_URL}/internal/v1/users`, {
+          ids: userIds,
+        })
+        .pipe(
+          map((res) => {
+            return res.data;
+          }),
+        ),
+    );
+  }
+
   async createUserLinkServer(sId: number, uId: number): Promise<UserServer> {
     return this.prismaService.userServer.create({
       data: {
@@ -159,7 +184,7 @@ export class ServerService {
         this.httpService
           .post<
             User[]
-          >(`${process.env.USER_SERVER_URL}/internal/v1/userNames`, { ids: inviterIds })
+          >(`${process.env.USER_SERVER_URL}/internal/v1/users`, { ids: inviterIds })
           .pipe(
             map((res) => {
               return res.data;

@@ -24,6 +24,7 @@ import {
   GenerateServerLinkDto,
   PatchServerDto,
   InviteLinkDto,
+  User,
 } from '../entities/server.dto';
 import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
@@ -80,6 +81,12 @@ export class ServerController {
   @HttpCode(204)
   async deleteRequest(@Param('id') id: number): Promise<void> {
     this.serverService.deleteServer(id);
+  }
+
+  @Get(':id/users')
+  @HttpCode(200)
+  async getUsers(@Param('id') id: number): Promise<User[]> {
+    return this.serverService.getUsers(id);
   }
 
   @Get(':id/inviteLink')
