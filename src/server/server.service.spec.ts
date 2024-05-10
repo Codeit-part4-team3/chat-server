@@ -39,7 +39,6 @@ describe('ServerService', () => {
   it('should call create when createServer is called', async () => {
     await service.createServer({
       name: 'test',
-      imageUrl: 'test',
     });
     expect(prismaService.server.create).toHaveBeenCalled();
   });
