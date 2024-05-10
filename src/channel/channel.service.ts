@@ -65,4 +65,12 @@ export class ChannelService {
       },
     });
   }
+
+  async deleteChannelByServerId(sId: number): Promise<void> {
+    await this.prismaService.channel.deleteMany({
+      where: {
+        serverId: sId,
+      },
+    });
+  }
 }

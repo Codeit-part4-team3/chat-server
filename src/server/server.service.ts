@@ -104,7 +104,16 @@ export class ServerService {
   }
 
   async deleteServer(sId: number): Promise<Server> {
-    return this.prismaService.server.delete({
+    await Promise.all([
+      this.channelService.deleteChannelByServerId(sId),
+      this.prismaService.userServer.deleteMany({
+        where: {
+          serverId: sId,
+        },
+      }),
+    ]);
+
+    return await this.prismaService.server.delete({
       where: {
         id: sId,
       },
