@@ -12,6 +12,10 @@ import {
   Query,
   UseGuards,
   Put,
+  UseInterceptors,
+  ParseFilePipe,
+  UploadedFile,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
@@ -28,6 +32,7 @@ import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { JwtAuthGuard } from '../auth/auth-guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 //
 // # 서버 관련 API
@@ -57,22 +62,40 @@ export class ServerController {
 
   @Post()
   @HttpCode(201)
+  @UseInterceptors(FileInterceptor('imageFile'))
   async postRequest(
     @Body() createServerDto: CreateServerDto,
     @Query('userId') userId: number,
-  ): Promise<Server> {
-    return this.serverService.createServer(createServerDto).then((server) => {
-      this.serverService.createUserLinkServer(server.id, userId);
-      return server;
-    });
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/*' })],
+        fileIsRequired: false,
+      }),
+    )
+    imageFile: Express.Multer.File,
+  ) {
+    return this.serverService
+      .createServer(createServerDto, imageFile)
+      .then((server) => {
+        this.serverService.createUserLinkServer(server.id, userId);
+        return server;
+      });
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('imageFile'))
   async patchRequest(
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/*' })],
+        fileIsRequired: false,
+      }),
+    )
+    imageFile: Express.Multer.File, // Add @Optional() decorator to allow null
   ): Promise<Server | void> {
-    return this.serverService.patchServer(id, patchServerDto);
+    return this.serverService.patchServer(id, patchServerDto, imageFile);
   }
 
   @Delete(':id')

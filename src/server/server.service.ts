@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import {
   CreateServerDto,
@@ -18,14 +18,43 @@ import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { InvitedServer, AcceptInviteDto } from '../entities/server.dto';
+import * as S3Client from 'aws-sdk/clients/s3';
 
 @Injectable()
 export class ServerService {
+  private readonly s3Client: S3Client;
   constructor(
     private prismaService: PrismaService,
     private httpService: HttpService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) {
+    this.s3Client = new S3Client({
+      region: 'ap-northeast-2',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    });
+  }
+
+  async upload(file: Express.Multer.File) {
+    if (!file) {
+      throw new HttpException('파일이 필요합니다.', HttpStatus.NOT_FOUND);
+    }
+
+    const { originalname, buffer } = file;
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: `${Date.now()}-${originalname}`,
+      Body: buffer,
+    };
+
+    try {
+      const res = await this.s3Client.upload(params).promise();
+
+      return res.Location;
+    } catch (e) {
+      throw new HttpException('서버에러', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async getAllServer(uId: number): Promise<Server[]> {
     const userServers = await this.prismaService.userServer.findMany({
@@ -46,16 +75,47 @@ export class ServerService {
     return servers;
   }
 
-  async createServer(server: CreateServerDto): Promise<Server> {
+  async createServer(
+    server: CreateServerDto,
+    imageFile?: Express.Multer.File,
+  ): Promise<Server> {
+    if (imageFile) {
+      const imageUrl = await this.upload(imageFile);
+
+      return this.prismaService.server.create({
+        data: {
+          name: server.name,
+          imageUrl,
+        },
+      });
+    }
     return this.prismaService.server.create({
       data: {
         name: server.name,
-        imageUrl: server.imageUrl,
+        imageUrl: '',
       },
     });
   }
 
-  async patchServer(sId: number, server: PatchServerDto): Promise<Server> {
+  async patchServer(
+    sId: number,
+    server: PatchServerDto,
+    imageFile?: Express.Multer.File,
+  ): Promise<Server> {
+    if (imageFile) {
+      const imageUrl: string = await this.upload(imageFile);
+
+      return this.prismaService.server.update({
+        where: {
+          id: sId,
+        },
+        data: {
+          name: server.name,
+          imageUrl,
+        },
+      });
+    }
+
     return this.prismaService.server.update({
       where: {
         id: sId,
