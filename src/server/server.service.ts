@@ -19,7 +19,7 @@ import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { InvitedServer, AcceptInviteDto } from '../entities/server.dto';
-import { ChannelService } from 'src/channel/channel.service';
+import { ChannelService } from '../channel/channel.service';
 import * as S3Client from 'aws-sdk/clients/s3';
 
 @Injectable()
@@ -101,6 +101,12 @@ export class ServerService {
         },
       });
     }
+
+    if (!result)
+      throw new HttpException(
+        '서버 생성 실패',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
 
     Promise.all([
       this.channelService

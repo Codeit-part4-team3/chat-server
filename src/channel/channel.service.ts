@@ -58,12 +58,20 @@ export class ChannelService {
     });
   }
 
-  async deleteChannel(cId: number): Promise<Channel> {
-    return this.prismaService.channel.delete({
+  async deleteChannel(cId: number): Promise<Channel | void> {
+    await this.prismaService.channel.deleteMany({
+      where: {
+        groupId: cId,
+      },
+    });
+
+    const deletedChannel = await this.prismaService.channel.delete({
       where: {
         id: cId,
       },
     });
+
+    return deletedChannel;
   }
 
   async deleteChannelByServerId(sId: number): Promise<void> {
