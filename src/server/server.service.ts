@@ -150,7 +150,7 @@ export class ServerService {
     if (imageFile) {
       const imageUrl: string = await this.upload(imageFile);
 
-      return this.prismaService.server.update({
+      return await this.prismaService.server.update({
         where: {
           id: sId,
         },
@@ -159,17 +159,17 @@ export class ServerService {
           imageUrl,
         },
       });
+    } else {
+      return await this.prismaService.server.update({
+        where: {
+          id: sId,
+        },
+        data: {
+          name: server.name,
+          imageUrl: server.imageUrl,
+        },
+      });
     }
-
-    return this.prismaService.server.update({
-      where: {
-        id: sId,
-      },
-      data: {
-        name: server.name,
-        imageUrl: server.imageUrl,
-      },
-    });
   }
 
   async deleteServer(sId: number): Promise<Server> {

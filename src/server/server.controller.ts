@@ -85,6 +85,7 @@ export class ServerController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @UseInterceptors(FileInterceptor('imageFile'))
   async patchRequest(
     @Param('id') id: number,
@@ -115,6 +116,7 @@ export class ServerController {
   @Get(':id/inviteLink')
   @HttpCode(200)
   async getInviteLink(@Param('id') id: number): Promise<GenerateServerLinkDto> {
+    this.logger.info('[generateInviteLink] Get /chat/v1/server/:id/inviteLink');
     return this.serverService.generateInviteLink(id);
   }
 
