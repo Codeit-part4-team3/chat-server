@@ -5,19 +5,21 @@ import {
   EventDto,
   GetEventDto,
   InviteServerDto,
-  InviteServerLinkDto,
-  InviteUserServerResponseDto,
+  GenerateServerLinkDto,
+  InternalVerifyEmailDto,
   PatchServerDto,
   User,
+  InviteLinkDto,
 } from '../entities/server.dto';
 import { PrismaService } from '../prisma.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { encoding } from '../utils/secret';
+import { decoding, encoding } from '../utils/secret';
 import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { InvitedServer, AcceptInviteDto } from '../entities/server.dto';
+import { ChannelService } from '../channel/channel.service';
 import * as S3Client from 'aws-sdk/clients/s3';
 
 @Injectable()
@@ -26,6 +28,7 @@ export class ServerService {
   constructor(
     private prismaService: PrismaService,
     private httpService: HttpService,
+    private channelService: ChannelService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {
     this.s3Client = new S3Client({
@@ -79,22 +82,64 @@ export class ServerService {
     server: CreateServerDto,
     imageFile?: Express.Multer.File,
   ): Promise<Server> {
+    let result;
+
     if (imageFile) {
       const imageUrl = await this.upload(imageFile);
 
-      return this.prismaService.server.create({
+      result = await this.prismaService.server.create({
         data: {
           name: server.name,
           imageUrl,
         },
       });
+    } else {
+      result = await this.prismaService.server.create({
+        data: {
+          name: server.name,
+          imageUrl: '',
+        },
+      });
     }
-    return this.prismaService.server.create({
-      data: {
-        name: server.name,
-        imageUrl: '',
-      },
-    });
+
+    if (!result)
+      throw new HttpException(
+        '서버 생성 실패',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+
+    Promise.all([
+      this.channelService
+        .createChannel(result.id, {
+          name: '일반 카테고리',
+          isPrivate: false,
+          isVoice: false,
+        })
+        .then((group) =>
+          this.channelService.createChannel(result.id, {
+            name: '일반',
+            isPrivate: false,
+            isVoice: false,
+            groupId: group.id,
+          }),
+        ),
+      this.channelService
+        .createChannel(result.id, {
+          name: '음성 카테고리',
+          isPrivate: false,
+          isVoice: false,
+        })
+        .then((group) =>
+          this.channelService.createChannel(result.id, {
+            name: '음성',
+            isPrivate: false,
+            isVoice: true,
+            groupId: group.id,
+          }),
+        ),
+    ]);
+
+    return result;
   }
 
   async patchServer(
@@ -105,7 +150,7 @@ export class ServerService {
     if (imageFile) {
       const imageUrl: string = await this.upload(imageFile);
 
-      return this.prismaService.server.update({
+      return await this.prismaService.server.update({
         where: {
           id: sId,
         },
@@ -114,25 +159,59 @@ export class ServerService {
           imageUrl,
         },
       });
+    } else {
+      return await this.prismaService.server.update({
+        where: {
+          id: sId,
+        },
+        data: {
+          name: server.name,
+          imageUrl: server.imageUrl,
+        },
+      });
     }
+  }
 
-    return this.prismaService.server.update({
+  async deleteServer(sId: number): Promise<Server> {
+    await Promise.all([
+      this.channelService.deleteChannelByServerId(sId),
+      this.prismaService.userServer.deleteMany({
+        where: {
+          serverId: sId,
+        },
+      }),
+    ]);
+
+    return await this.prismaService.server.delete({
       where: {
         id: sId,
-      },
-      data: {
-        name: server.name,
-        imageUrl: server.imageUrl,
       },
     });
   }
 
-  async deleteServer(sId: number): Promise<Server> {
-    return this.prismaService.server.delete({
+  async getUsers(sId: number): Promise<User[]> {
+    this.logger.info('[getUsers]');
+    const userServers = await this.prismaService.userServer.findMany({
       where: {
-        id: sId,
+        serverId: sId,
       },
     });
+
+    this.logger.info(JSON.stringify(userServers));
+    const userIds = userServers.map((userServer) => userServer.userId);
+    this.logger.info(JSON.stringify(userIds));
+
+    return await firstValueFrom(
+      this.httpService
+        .post<User[]>(`${process.env.USER_SERVER_URL}/internal/v1/users`, {
+          ids: userIds,
+        })
+        .pipe(
+          map((res) => {
+            return res.data;
+          }),
+        ),
+    );
   }
 
   async createUserLinkServer(sId: number, uId: number): Promise<UserServer> {
@@ -144,10 +223,22 @@ export class ServerService {
     });
   }
 
-  async generateInviteLink(sId: number): Promise<InviteServerLinkDto> {
+  async generateInviteLink(sId: number): Promise<GenerateServerLinkDto> {
     let encodeId = encoding(String(sId));
     encodeId = encodeURIComponent(`${encodeId}`);
     return { inviteLink: encodeId };
+  }
+
+  async redirectInviteLink(inviteLinkDto: InviteLinkDto): Promise<object> {
+    const decodeId = decodeURIComponent(inviteLinkDto.secretKey);
+    const sId = Number(decoding(decodeId));
+
+    const result = await this.createUserLinkServer(
+      sId,
+      inviteLinkDto.inviteeId,
+    );
+
+    return { redirectUrl: `server/${result.serverId}` };
   }
 
   async inviteMember(
@@ -156,7 +247,7 @@ export class ServerService {
   ): Promise<InviteServer> {
     const invitee = await firstValueFrom(
       this.httpService
-        .post<InviteUserServerResponseDto>(
+        .post<InternalVerifyEmailDto>(
           `${process.env.USER_SERVER_URL}/internal/v1/verifyEmail`,
           {
             email: inviteServerDto.inviteeEmail,
@@ -206,7 +297,7 @@ export class ServerService {
         this.httpService
           .post<
             User[]
-          >(`${process.env.USER_SERVER_URL}/internal/v1/userNames`, { ids: inviterIds })
+          >(`${process.env.USER_SERVER_URL}/internal/v1/users`, { ids: inviterIds })
           .pipe(
             map((res) => {
               return res.data;

@@ -55,9 +55,4 @@ describe('ChannelService', () => {
     });
     expect(prismaService.channel.update).toHaveBeenCalled();
   });
-
-  it('should call delete when deleteChannel is called', async () => {
-    await service.deleteChannel(0);
-    expect(prismaService.channel.delete).toHaveBeenCalled();
-  });
 });

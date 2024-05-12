@@ -25,8 +25,10 @@ import {
   GetEventDto,
   InvitedServer,
   InviteServerDto,
-  InviteServerLinkDto,
+  GenerateServerLinkDto,
   PatchServerDto,
+  InviteLinkDto,
+  User,
 } from '../entities/server.dto';
 import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
@@ -83,6 +85,7 @@ export class ServerController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @UseInterceptors(FileInterceptor('imageFile'))
   async patchRequest(
     @Param('id') id: number,
@@ -104,13 +107,18 @@ export class ServerController {
     this.serverService.deleteServer(id);
   }
 
-  @Get(':id/inviteLink')
+  @Get(':id/users')
   @HttpCode(200)
-  async getInviteLink(@Param('id') id: number): Promise<InviteServerLinkDto> {
-    return this.serverService.generateInviteLink(id);
+  async getUsers(@Param('id') id: number): Promise<User[]> {
+    return this.serverService.getUsers(id);
   }
 
-  // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
+  @Get(':id/inviteLink')
+  @HttpCode(200)
+  async getInviteLink(@Param('id') id: number): Promise<GenerateServerLinkDto> {
+    this.logger.info('[generateInviteLink] Get /chat/v1/server/:id/inviteLink');
+    return this.serverService.generateInviteLink(id);
+  }
 
   @Post(':id/inviteMember')
   @HttpCode(200)
@@ -136,6 +144,12 @@ export class ServerController {
     @Body() acceptInviteDto: AcceptInviteDto,
   ): Promise<UserServer | null> {
     return this.serverService.acceptInvite(userId, acceptInviteDto);
+  }
+
+  @Post('inviteLink')
+  @HttpCode(200)
+  async inviteLink(@Body() inviteLinkDto: InviteLinkDto): Promise<object> {
+    return this.serverService.redirectInviteLink(inviteLinkDto);
   }
 
   @Post('event')
