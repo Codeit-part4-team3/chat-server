@@ -21,6 +21,17 @@ export class ChannelService {
     return channels;
   }
 
+  async getAllChannelManyServer(sIds: number[]): Promise<Channel[]> {
+    const channels = await this.prismaService.channel.findMany({
+      where: {
+        serverId: {
+          in: sIds,
+        },
+      },
+    });
+    return channels;
+  }
+
   async getChannel(cId: number): Promise<Channel> {
     return this.prismaService.channel.findUnique({
       where: {
