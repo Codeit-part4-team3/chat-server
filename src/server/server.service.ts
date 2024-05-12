@@ -180,6 +180,11 @@ export class ServerService {
           serverId: sId,
         },
       }),
+      this.prismaService.event.deleteMany({
+        where: {
+          serverId: sId,
+        },
+      }),
     ]);
 
     return await this.prismaService.server.delete({
