@@ -102,6 +102,7 @@ export class ServerService {
       });
     }
 
+    // Todo : 상위 Controller로 이동
     if (!result)
       throw new HttpException(
         '서버 생성 실패',
