@@ -15,6 +15,9 @@ import { HttpModule } from '@nestjs/axios';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
+import { CommonController } from './common/common.controller';
+import { CommonModule } from './common/common.module';
+import { CommonService } from './common/common.service';
 
 @Module({
   imports: [
@@ -24,12 +27,14 @@ import { AuthService } from './auth/auth.service';
     ConfigModule.forRoot({ isGlobal: true }),
     HttpModule,
     AuthModule,
+    CommonModule,
   ],
   controllers: [
     AppController,
     ServerController,
     ChannelController,
     AuthController,
+    CommonController,
   ],
   providers: [
     AppService,
@@ -37,6 +42,7 @@ import { AuthService } from './auth/auth.service';
     ChannelService,
     PrismaService,
     AuthService,
+    CommonService,
   ],
 })
 export class AppModule implements NestModule {

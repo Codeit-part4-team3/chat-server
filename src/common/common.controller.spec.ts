@@ -1,20 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ServerController } from './server.controller';
+import { CommonController } from './common.controller';
+import { ChannelService } from '../channel/channel.service';
+import { AuthService } from '../auth/auth.service';
+import { ServerService } from '../server/server.service';
 import { PrismaService } from '../prisma.service';
-import { ServerService } from './server.service';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { HttpModule } from '@nestjs/axios';
-import { AuthService } from '../auth/auth.service';
-import { ChannelService } from '../channel/channel.service';
 
-describe('ServerController', () => {
-  let controller: ServerController;
+describe('CommonController', () => {
+  let controller: CommonController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ServerController],
-      providers: [ServerService, PrismaService, AuthService, ChannelService], // why PrismaService?
+      controllers: [CommonController],
+      providers: [ServerService, AuthService, ChannelService, PrismaService], // why PrismaService?
       imports: [
         HttpModule,
         WinstonModule.forRoot({
@@ -23,7 +23,7 @@ describe('ServerController', () => {
       ],
     }).compile();
 
-    controller = module.get<ServerController>(ServerController);
+    controller = module.get<CommonController>(CommonController);
   });
 
   it('should be defined', () => {

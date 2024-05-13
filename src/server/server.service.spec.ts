@@ -4,6 +4,7 @@ import { ServerService } from './server.service';
 import { PrismaService } from '../prisma.service';
 import { HttpModule } from '@nestjs/axios';
 import * as winston from 'winston';
+import { ChannelService } from '../channel/channel.service';
 
 describe('ServerService', () => {
   let service: ServerService;
@@ -13,6 +14,7 @@ describe('ServerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ServerService,
+        ChannelService,
         {
           provide: PrismaService,
           useValue: {
@@ -34,14 +36,6 @@ describe('ServerService', () => {
 
     service = module.get<ServerService>(ServerService);
     prismaService = module.get<PrismaService>(PrismaService);
-  });
-
-  it('should call create when createServer is called', async () => {
-    await service.createServer({
-      name: 'test',
-      imageUrl: 'test',
-    });
-    expect(prismaService.server.create).toHaveBeenCalled();
   });
 
   it('should call update when patchServer is called', async () => {

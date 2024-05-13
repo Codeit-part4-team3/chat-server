@@ -21,6 +21,17 @@ export class ChannelService {
     return channels;
   }
 
+  async getAllChannelManyServer(sIds: number[]): Promise<Channel[]> {
+    const channels = await this.prismaService.channel.findMany({
+      where: {
+        serverId: {
+          in: sIds,
+        },
+      },
+    });
+    return channels;
+  }
+
   async getChannel(cId: number): Promise<Channel> {
     return this.prismaService.channel.findUnique({
       where: {
@@ -58,10 +69,34 @@ export class ChannelService {
     });
   }
 
-  async deleteChannel(cId: number): Promise<Channel> {
-    return this.prismaService.channel.delete({
+  async deleteChannel(cId: number): Promise<Channel | void> {
+    const groupChannels = await this.prismaService.channel.findMany({
+      where: {
+        groupId: cId,
+      },
+    });
+
+    for (const channel of groupChannels) {
+      await this.prismaService.channel.delete({
+        where: {
+          id: channel.id,
+        },
+      });
+    }
+
+    const deletedChannel = await this.prismaService.channel.delete({
       where: {
         id: cId,
+      },
+    });
+
+    return deletedChannel;
+  }
+
+  async deleteChannelByServerId(sId: number): Promise<void> {
+    await this.prismaService.channel.deleteMany({
+      where: {
+        serverId: sId,
       },
     });
   }

@@ -12,6 +12,10 @@ import {
   Query,
   UseGuards,
   Put,
+  UseInterceptors,
+  ParseFilePipe,
+  UploadedFile,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { ServerService } from './server.service';
 import {
@@ -21,13 +25,16 @@ import {
   GetEventDto,
   InvitedServer,
   InviteServerDto,
-  InviteServerLinkDto,
+  GenerateServerLinkDto,
   PatchServerDto,
+  InviteLinkDto,
+  User,
 } from '../entities/server.dto';
 import { InviteServer, Server, UserServer, Event } from '@prisma/client';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { JwtAuthGuard } from '../auth/auth-guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 //
 // # 서버 관련 API
@@ -57,22 +64,41 @@ export class ServerController {
 
   @Post()
   @HttpCode(201)
+  @UseInterceptors(FileInterceptor('imageFile'))
   async postRequest(
     @Body() createServerDto: CreateServerDto,
     @Query('userId') userId: number,
-  ): Promise<Server> {
-    return this.serverService.createServer(createServerDto).then((server) => {
-      this.serverService.createUserLinkServer(server.id, userId);
-      return server;
-    });
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/*' })],
+        fileIsRequired: false,
+      }),
+    )
+    imageFile: Express.Multer.File,
+  ) {
+    return this.serverService
+      .createServer(createServerDto, imageFile)
+      .then((server) => {
+        this.serverService.createUserLinkServer(server.id, userId);
+        return server;
+      });
   }
 
   @Patch(':id')
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor('imageFile'))
   async patchRequest(
     @Param('id') id: number,
     @Body() patchServerDto: PatchServerDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/*' })],
+        fileIsRequired: false,
+      }),
+    )
+    imageFile: Express.Multer.File, // Add @Optional() decorator to allow null
   ): Promise<Server | void> {
-    return this.serverService.patchServer(id, patchServerDto);
+    return this.serverService.patchServer(id, patchServerDto, imageFile);
   }
 
   @Delete(':id')
@@ -81,13 +107,18 @@ export class ServerController {
     this.serverService.deleteServer(id);
   }
 
-  @Get(':id/inviteLink')
+  @Get(':id/users')
   @HttpCode(200)
-  async getInviteLink(@Param('id') id: number): Promise<InviteServerLinkDto> {
-    return this.serverService.generateInviteLink(id);
+  async getUsers(@Param('id') id: number): Promise<User[]> {
+    return this.serverService.getUsers(id);
   }
 
-  // @Post(':id/inviteLink') body에 inviteLink, 로그인된 유저인지 확인 후 서버에 추가
+  @Get(':id/inviteLink')
+  @HttpCode(200)
+  async getInviteLink(@Param('id') id: number): Promise<GenerateServerLinkDto> {
+    this.logger.info('[generateInviteLink] Get /chat/v1/server/:id/inviteLink');
+    return this.serverService.generateInviteLink(id);
+  }
 
   @Post(':id/inviteMember')
   @HttpCode(200)
@@ -113,6 +144,12 @@ export class ServerController {
     @Body() acceptInviteDto: AcceptInviteDto,
   ): Promise<UserServer | null> {
     return this.serverService.acceptInvite(userId, acceptInviteDto);
+  }
+
+  @Post('inviteLink')
+  @HttpCode(200)
+  async inviteLink(@Body() inviteLinkDto: InviteLinkDto): Promise<object> {
+    return this.serverService.redirectInviteLink(inviteLinkDto);
   }
 
   @Post('event')
