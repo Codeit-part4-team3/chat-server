@@ -46,7 +46,7 @@ export class ServerService {
     const { originalname, buffer } = file;
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${Date.now()}-${originalname}`,
+      Key: `images/${Date.now()}-${originalname}`,
       Body: buffer,
     };
 
